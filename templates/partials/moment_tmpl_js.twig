@@ -1,0 +1,114 @@
+<script type="text/template" id="moment-template">
+{#{% apply spaceless %}#}
+    <div class="pin-wrapper momentItem momentItem_<%=id%>" data-momentid="<%=id%>">
+
+        <div class="pin-image-action-button-wrapper">
+            <div class="pin-action pin-action-delete">
+                {% if is_granted('ROLE_ADMIN') %}
+                    <a type="button" class="btn btn-default js-moment-delete" title="Delete"
+                            data-url="{{ path('api_moments_delete_moment_id', {'moment_id': 'MID'}) }}"
+                        >
+                        <em class="fa fa-trash"></em>
+                    </a>
+                {% else %}
+                    <% if (username == "{{ app.user.username }}") { %>
+                        <a type="button" class="btn btn-default js-moment-delete" title="Delete"
+                                data-url="{{ path('api_moments_delete', {'moment_id': 'MID'}) }}"
+                            >
+                            <em class="fa fa-trash"></em>
+                        </a>
+                    <% } else { %>
+                        <a type="button" class="btn btn-default js-moment-block" title="Block"
+                                data-url="{{ path('api_moments_block', {'moment_id': 'MID'}) }}"
+                            >
+                            <em class="fa fa-ban"></em>
+                        </a>
+                    <% } %>
+                {% endif %}
+            </div>
+
+            <div class="pin-action pin-action-like">
+                <a type="button" class="btn btn-default js-moment-like liked<%=isLike%>" title="<% if (isLike) { %>Dislike<% } else { %>Like<% } %>"
+                        data-like-url="{{ path('api_moments_like', {'moment_id': 'MID'}) }}"
+                        data-unlike-url="{{ path('api_moments_unlike', {'moment_id': 'MID'}) }}"
+                        data-is-like="<% if (isLike) { %>true<% } else { %>false<% } %>"
+                    >
+                    <em class="icon_like fa fa-heart"></em>
+                </a>
+            </div>
+            <div class="pin-image-wrapper">
+                <a href="<%=image.replace("/origin/", "/large/")%>" title="<%=name%>" class="view" rel="moment">
+                    <h4><%=name%></h4>
+                    <% if (image.length>0) { %>
+                        <img src="<%=image.replace("/origin/", "/small/")%>" alt="<%=name%>" />
+                    <% } else { %>
+                        <img />
+                    <% } %>
+                </a>
+            </div>
+        </div>
+
+        <div class="pin-meta">
+            <p class="pin-description"><%=name%></p>
+            <div class="pin-social-meta">
+                <span class="comments">
+                    <em class="fa fa-comment"></em>
+                    <em class="pin-social-meta-count pin-moment-count"><%=totalComments%></em>
+                </span>
+                <a class="likes js-moment-like pointer liked<%=isLike%>" title="<% if (isLike) { %>Dislike<% } else { %>Like<% } %>"
+                   data-like-url="{{ path('api_moments_like', {'moment_id': 'MID'}) }}"
+                   data-unlike-url="{{ path('api_moments_unlike', {'moment_id': 'MID'}) }}"
+                   data-is-like="<% if (isLike) { %>true<% } else { %>false<% } %>"
+                >
+                    <em class="icon_like fa fa-heart"></em>
+                    <em class="pin-social-meta-count pin-like-count"><%=totalLikes%></em>
+                </a>
+                <% if (distance>0) { %>
+                    <span>
+                        <em class="fa fa-map-marker"></em>
+                        <em class="pin-social-meta-count"><%=parseFloat(distance).toFixed(2)%> {% if app.user.distanceBy == constant('App\\Entity\\User::DISTANCEBY_MILES') %}mil{% else %}km{% endif %}</em>
+                    </span>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="pin-credits">
+            <a href="{{ path('profile', {'username': 'USERNAME'}) }}">
+                <% if (!_.isNull(photo) && photo.length>0) { %>
+                    <img class="credit-img" src="<%=photo.replace("/origin/", "/mini/")%>" alt="<%=username%>" />
+                <% } else { %>
+                    <div class="credit-img gender <% if (gender) { %><%=gender.toLowerCase()%><% } %>"></div>
+                <% } %>
+                <div class="credit-name"><%=username%></div>
+                <div class="credit-extra"><%=date_created.date.substring(0, 10)%></div>
+            </a>
+        </div>
+
+        <div class="pin-comment-list">
+            <ul><%=comments%></ul>
+            <% if (totalComments>3) { %>
+                <a class="showall js-pin-comments-showall" href="#"> Show <span class="count"><%=totalComments-3%></span> more comments... </a>
+            <% } %>
+        </div>
+
+        <div class="pin-new-comment-item clearfix">
+            <div class="commenter-thumb">
+                <a href="{{ path('profile', {'username': app.user.username}) }}">
+                    <img src="{{ s3url(app.user.photo, 'mini', true) }}" class="credit-img {% if not app.user.photo %}gender {{ app.user.gender|lower }}{% endif %}" alt="{{ app.user.username }}" />
+                </a>
+            </div>
+            <div class="commenter-comment">
+                <form action="{{ path('api_moments_add_comment') }}" class="js-form-moment-comments">
+                    <input type="hidden" name="moment_id" value="<%=id%>" />
+                    <input type="hidden" name="username" value="<%=username%>" />
+                    <div class="form-group">
+                        <textarea name="comment" class="form-control" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary">Comment</button>
+                    <div class="ajax-loader" style="display: none;top: inherit;bottom: 10px;"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+{#{% endapply %}#}
+</script>

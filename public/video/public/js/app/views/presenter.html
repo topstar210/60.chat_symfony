@@ -1,0 +1,260 @@
+<link rel="stylesheet" href="css/presenter.css">
+<link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="css/responsive.css">
+<div class="presenter-main">
+    <div class="container-fluid" ng-show="!logined">
+        <div id="login-section">
+            <div class="row">
+                <div class="offset-md-3 col-md-6 offset-xl-4 col-xl-4">
+                    <div class="card card-signin my-5">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">Participant Join</h5>
+                            <form class="form-signin">
+                                <div class="form-label-group">
+                                    <label for="adminName">Session ID</label>
+                                    <input type="text" id="session_id" class="form-control" name="presenterName"
+                                        placeholder="Session ID" ng-model="session_id">
+                                </div>
+                                <div class="form-label-group">
+                                    <label for="inputPassword">Session Password</label>
+                                    <input type="password" id="password" class="form-control"
+                                        ng-model="session_password" required>
+                                </div>
+                                <button class="btn btn-lg btn-success btn-block text-uppercase" id="join-btn"
+                                    ng-click="join()" type="button">
+                                    Join
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <header class="header_styled" ng-if="logined">
+        <div class="header_inner">
+            <div class="header_logo">
+            </div>
+            <div class="header_title">
+                <p class="mb-0">Presenter View {{meeting_title}}</p>
+                <p class="mb-0">SessionID {{session_link}}</div>
+        </div>
+    </header>
+    <div class="studio">
+        <main class="studio_left">
+            <div class="studio_left_absolute">
+                <div class="studio_video_row">
+                    <div class="studio_videowrap" ng-style="{width : width + 'px', height : height + 'px'}">
+                        <div id="videos-container">
+                            <participant-broadcast-screen layout="layout" tracks="selected_tracks"
+                                status="meeting_status" 
+                                local-video-track-name="local_video_track_name" local-screen-track-name="local_screen_track_name" local-audio-track-name="local_audio_track_name">
+                            </participant-broadcast-screen>
+                        </div>
+                    </div>
+                </div>
+                <div class="studio_cardRow">
+                    <div class="row w-100 ml-0 mr-0 mt-3">
+                        <div class="col-md-12" style="display: flex;align-items: center;justify-content: flex-start;">
+                            <div id="videos-remote-container" class="my_camera"
+                                style="display:flex;width:100%;overflow-y:auto;">
+                                <participant-cam participant="participant" ng-repeat="participant in participants">
+                                </participant-cam>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="studio_control">
+                    <div class="control-row">
+                        <div class="control-row-wrap">
+                            <div class="controls-wrap">
+                                <button class="control-item" ng-click="mic_control()">
+                                    <div class="controlbutton_iconwrap">
+
+                                        <span class="control-layout" aria-label="Mute mic" ng-if="!muted">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
+                                                viewBox="0 0 24 24" fill="#505868">
+                                                <path
+                                                    d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z">
+                                                </path>
+                                                <path d="M0 0h24v24H0z" fill="none"></path>
+                                            </svg>
+                                        </span>
+                                        <span class="control-layout" aria-label="Unmute mic" ng-if="muted">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                viewBox="0 0 24 24" fill="#505868">
+                                                <path d="M0 0h24v24H0zm0 0h24v24H0z" fill="none"></path>
+                                                <path
+                                                    d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3 .22 0 .44-.03.65-.08l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z">
+                                                </path>
+                                            </svg>
+                                        </span>
+
+                                    </div>
+                                    <span>
+                                        Mute
+                                    </span>
+                                </button>
+                                <button class="control-item" ng-click="share_screen()">
+                                    <div class="controlbutton_iconwrap">
+
+                                        <span class="control-layout">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="#505868">
+                                                <path d="M0 0h24v24H0z" fill="none"></path>
+                                                <path
+                                                    d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7v2H8v2h8v-2h-2v-2h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H3V4h18v12z">
+                                                </path>
+                                            </svg>
+                                        </span>
+
+                                    </div>
+                                    <span style="font-size:13px;">
+                                        Share Screen
+                                    </span>
+                                </button>
+                                <button class="control-item" ng-click="leave_room()">
+                                    <div class="controlbutton_iconwrap">
+
+                                        <span class="control-layout">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24">
+                                                <circle cx="12" cy="12" r="10" fill="#ee5844"></circle>
+                                                <path
+                                                    d="M15.4863 16.8984L16.9004 15.4844L13.3652 11.9492L16.9004 8.41406L15.4863 7L11.9512 10.5352L8.41602 7L7 8.41406L10.5371 11.9492L7.00195 15.4844L8.41602 16.9004L11.9512 13.3633L15.4863 16.8984Z"
+                                                    fill="#fff"></path>
+                                            </svg>
+                                        </span>
+
+                                    </div>
+                                    <span style="font-size:13px;">
+                                        Leave Room
+                                    </span>
+                                </button>
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <aside class="studio_right">
+            <div class="RightAside">
+                <div class="row w-100 mr-0 ml-0">
+                    <div class="col-md-12">
+                        <div class="chat-box">
+                            <div class="chat-content">
+                                <div class="container message-container">
+                                    <div class="row w-100 mr-0 ml-0 mt-1" ng-repeat="content in chat_contents">
+                                        <div class="col-md-12 d-flex"
+                                            ng-class="{'justify-content-end' : content.message_type == 1, 'justify-content-start' : content.message_type == 0}">
+                                            <span>{{content.name}}</span>
+                                        </div>
+                                        <div class="col-md-12 d-flex"
+                                            ng-class="{'justify-content-end' : content.message_type == 1, 'justify-content-start' : content.message_type == 0}">
+                                            <span
+                                                style="background:#ececec;padding:2px;color:#000;border-radius: 5px;">{{content.text}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <input type="text" class="form-control mt-2" ng-model="input_chat"
+                                ng-enter="press_entered()" />
+                            <button type="button" class="btn btn-secondary mt-2 mb-2" style="float:right;"
+                                ng-click="send()">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- <div class="container-fluid">
+        <div id="users-section" ng-show="logined">
+            <div class="row">
+                <div class="offset-md-1 col-md-10">
+                    <div class="row mb-4 d-flex justify-content-center">
+                        <span class="text-white mr-3">Presenter View <strong><span
+                                    id="meeting_title">{{meeting_title}}</span></strong></span>
+                        <button type="button" id="open-room" class="btn btn-success ml-3"
+                            ng-click="share_screen()">Share Screen</button>
+                    </div>
+
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-9">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="layout_manager d-flex flex-column ml-2">
+                                <span class="layout-item" ng-click="mic_control()">Mic
+
+                                    <span class="fbJKOH" aria-label="Mute mic" ng-if="!item.muted"
+                                        ng-click="mute_audio(item)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
+                                            viewBox="0 0 24 24" fill="#505868">
+                                            <path
+                                                d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z">
+                                            </path>
+                                            <path d="M0 0h24v24H0z" fill="none"></path>
+                                        </svg>
+                                    </span>
+                                    <span class="fbJKOH" aria-label="Unmute mic" ng-if="item.muted"
+                                        ng-click="unmute_audio(item)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                            viewBox="0 0 24 24" fill="#505868">
+                                            <path d="M0 0h24v24H0zm0 0h24v24H0z" fill="none"></path>
+                                            <path
+                                                d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3 .22 0 .44-.03.65-.08l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z">
+                                            </path>
+                                        </svg>
+                                    </span>
+
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-10">
+                            <div class="stage-section">
+                                <div id="videos-container">
+                                    <participant-broadcast-screen layout="layout" tracks="selected_tracks"
+                                        track-id="track_id_arr" status="meeting_status"></participant-broadcast-screen>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12" style="display: flex;align-items: center;justify-content: flex-start;">
+                            <div id="videos-remote-container" class="my_camera"
+                                style="display:flex;width:100%;overflow-y:auto;">
+                                <participant-cam participant="participant" ng-repeat="participant in participants">
+                                </participant-cam>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+
+                </div>
+            </div>
+
+        </div>
+
+    </div> -->
+    <div class="row mt-2" style="height:150px;display:none;">
+        <div class="col-md-4">
+            <canvas id="canvas_self" width="320" height="240"
+                style="width:100%;height:100%;border-radius:8px;padding:20px;background:#252c33;"></canvas>
+        </div>
+    </div>
+
+    <div class="row mt-2" style="height:150px;display:none;">
+        <div class="col-md-4">
+            <canvas id="canvas_screen" width="320" height="240"
+                style="width:100%;height:100%;border-radius:8px;padding:20px;background:#252c33;"></canvas>
+        </div>
+    </div>
+</div>

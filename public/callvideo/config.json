@@ -1,0 +1,17 @@
+{
+  "socketURL": "/",
+  "dirPath": "",
+  "homePage": "/demos/index.html",
+  "socketMessageEvent": "RTCMultiConnection-Message",
+  "socketCustomEvent": "RTCMultiConnection-Custom-Message",
+  "port": "2087",
+  "enableLogs": "false",
+  "autoRebootServerOnFailure": "true",
+  "isUseHTTPs": "false",
+  "sslKey": "/etc/letsencrypt/live/chatapp.mobi/privkey.pem",
+  "sslCert": "/etc/letsencrypt/live/chatapp.mobi/cert.pem",
+  "sslCabundle": "",
+  "enableAdmin": "true",
+  "adminUserName": "username",
+  "adminPassword": "password"
+}

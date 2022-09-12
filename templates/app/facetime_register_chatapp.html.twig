@@ -1,0 +1,177 @@
+{% extends 'layout.html.twig' %}
+
+{% block scripts_after %}
+    <script type="text/javascript">
+
+    </script>
+
+{% endblock %}
+
+
+
+{% block content %}
+        <style>
+            .form-check-inline{
+                display: inline-block;
+            }
+            .text_red{color: red!important;}
+        </style>
+        <div class="container">
+            <div class="row" style="margin-top: 70px;margin-bottom: 70px">
+                <div class="col-md-5 ">
+                    <h1>Create Account</h1>
+                    <p>
+                        Get started with your free account.
+                    </p>
+                    <form id="frmFacetime" onsubmit="return checkForm();" action="{{ path('register') }}" class="login-form registerForm {% if error %}has-error{% endif %}" method="post" style="margin: 15px;">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="login-error" style="clear: both;margin: 0 0 14px 0px;">{% if error %}{{ error }}{% endif %}</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Your Name:</label>
+                            <input type="text" class="form-control" name="name" placeholder="Full name" value="{% if(people) %}{{ people.name }} {% endif %}" id="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Your email:</label>
+                            <input type="text" class="form-control" name="email" placeholder="" id="email" value="{% if(people) %}{{ people.email }}{% endif %}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number:</label>
+                            <input type="text" class="form-control" name="phone_number" placeholder="" value="" id="phone_number" required>
+                        </div>
+                        <div class="form-group">
+                            <select type="text" id="select_country" class="form-control input-lg">
+                                <option value="">-- Country --</option>
+                                {% set countryCode = 'US' %}
+                                {% for code, country in countries %}
+                                    <option value="{{ country }}" data-code="{{ code }}" {% if countryCode == code %}selected="selected"{% endif %}>{{ country }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select type="text" id="select_region" class="form-control input-lg">
+                                <option value="">-- Region --</option>
+                                {% if countryCode %}
+                                    {% for region in regions[countryCode] %}
+                                        <option value="{{ region }}">{{ region }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Gender:</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" {% if(people and people.gender == 'Male') %}checked {% endif %} type="radio" name="gender" id="male" value="Male">
+                                <label class="form-check-label" for="male">Male</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" {% if(people and people.gender == 'Female') %}checked {% endif %} type="radio" name="gender" id="female" value="Female">
+                                <label class="form-check-label" for="female">Female</label>
+                            </div>
+                            <div class="form-group" style="margin-top: 15px;">
+                                {% set birthday = app.request.request.get('birthday', {year:'', month:'', day:''}) %}
+                                <div class="row birthday-fields">
+                                    <div class="col-md-4">
+                                        <select id="birthday_year" name="birthday[year]" class="form-control input-lg" required="required">
+                                            <option value="">Year</option>
+                                            {% for year in range('now'|date('Y'), 'now'|date('Y') - 120) %}
+                                                <option value="{{ year }}" {% if year == birthdate.year %}selected="selected"{% endif %}>{{ year }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select id="birthday_month"  name="birthday[month]" class="form-control input-lg" required="required">
+                                            <option value="">Month</option>
+                                            {% for month in 1..12 %}
+                                                <option value="{{ month }}" {% if month == birthdate.month %}selected="selected"{% endif %}>{{ month }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select id="birthday_day"  name="birthday[day]" class="form-control input-lg" required="required">
+                                            <option value="">Day</option>
+                                            {% for day in 1..31 %}
+                                                <option value="{{ day }}" {% if day == birthdate.day %}selected="selected"{% endif %}>{{ day }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <span class="help-block small" id="error_message"><span class="required">*</span> Select your birthday. User must 18 years old or older to participate.</span>
+                            </div>
+
+
+                            <div class="form-group">
+                                <label>Username:</label>
+                                <input type="text" class="form-control" name="username" placeholder="" value="" id="username" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Password:</label>
+                                <input type="password" class="form-control" name="password" placeholder="" id="password" value="" required>
+                            </div>
+                            <div class="form-group" style="margin-top: 15px;">
+                                <button class="btn btn-lg btn-danger">Register</button>
+                            </div>
+                        </div>
+                    </div>
+                    </form>
+                </div>
+                <div class="col-md-7 text-center">
+                    <img style="max-width: 300px; margin-top: 30px;" src="{{ asset('static/facetime/register.png') }}"/>
+                </div>
+
+            </div>
+        </div>
+    <script type="text/javascript">
+        require(['jquery'],
+            function($) {
+                var regions = {{ regions|json_encode|raw }};
+
+                $('#select_country').on('change', function() {
+                    $('#select_region').html('<option value="">-- Region --</option>');
+
+                    if (regions[$(this).find('option:selected').data('code')]) {
+                        $.each(regions[$(this).find('option:selected').data('code')], function (k, v) {
+                            $('#select_region').append('<option value="' + v + '">' + v + '</option>');
+                        });
+                    }
+
+                    $('#profile_region').val($('#select_country').val());
+                });
+
+                $('#select_region').on('change', function() {
+                    $('#profile_region').val($('#select_region').val() + ', ' + $('#select_country').val());
+                });
+            });
+    </script>
+    <script>
+        require([
+            'underscore',
+            'jquery',
+            'jquery.view',
+            'jquery.bridget'
+        ], function() {
+            'use strict';
+
+
+        });
+    </script>
+    <script>
+        function checkForm() {
+            let ok = true;
+            let year = parseInt($('#birthday_year').val());
+            $('.input_error').removeClass('input_error');
+            $('.text_red').removeClass('text_red');
+
+            if(year + 18 > {{ 'now' | date('Y') }}){
+                $('#birthday_year').addClass('input_error');
+                $('#birthday_month').addClass('input_error');
+                $('#birthday_day').addClass('input_error');
+                $('#error_message').addClass('text_red');
+                ok = false;
+            }
+
+            return ok;
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'layout.html.twig' %}
+
+{% block scripts_after %}
+    <script type="text/javascript">
+        require(['js/app/moments', 'js/app/profile']);
+    </script>
+{% endblock %}
+
+{% block content %}
+    {% if moments|length > 0 %}
+        <div class="info-header-content">
+            <div class="container">
+                <h1 class="info-header-title">Recent Moments</h1>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="masonry-wrapper">
+                <div class="masonry moments">
+                    {% for moment in moments %}
+                        <div class="masonry-item pin">
+                            {% include 'partials/moment.html.twig' with {'moment': moment} %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <script type='text/javascript'>
+
+
+            require([
+                'jquery',
+                'masonry',
+                'jquery.bridget',
+                'jquery.view'
+            ], function($, Masonry) {
+                $.bridget('masonry', Masonry);
+                var $masonry = $('.masonry.moments');
+                $masonry.masonry({
+                    columnWidth: 270,
+                    gutter: 20,
+                    itemSelector: '.masonry-item.pin',
+                    isFitWidth: true
+                });
+                setInterval(function () {
+                    $masonry.masonry();
+                },7000);
+                // reload viewer
+                View($('a.view[href]'));
+
+            });
+        </script>
+    {% endif %}
+
+    {% if contacts|length > 0 %}
+        <div class="info-header-content">
+            <div class="container">
+                <h1 class="info-header-title">Recently Added Profiles</h1>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="masonry-wrapper">
+                <div class="masonry contents">
+                    {% for contact in contacts %}
+                        <div class="masonry-item item">
+                            {% include 'partials/contact.html.twig' with {'contact': contact} %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <script type='text/javascript'>
+
+            require([
+                'jquery',
+                'masonry',
+                'jquery.bridget'
+            ], function($, Masonry) {
+                $.bridget('masonry', Masonry);
+                var $masonry2 = $('.masonry.item');
+                $masonry2.masonry({
+                    columnWidth: 270,
+                    gutter: 20,
+                    itemSelector: '.masonry-item.content',
+                    isFitWidth: true
+                });
+                setInterval(function () {
+                    $masonry2.masonry();
+                },7000);
+
+            });
+        </script>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,13 @@
+<div style="display:flex;position: absolute;transition:opacity 0.3s ease 0s;"
+    ng-style="{opacity : itemStyle.opacity, width: itemStyle.width, height : itemStyle.height, left : itemStyle.left, top : itemStyle.top}"
+    class="broadcast-video-item"
+    ng-class="{'video' : type == 'video', 'audio' : type == 'audio', 'screen' : type == 'screen'}">
+
+    <div style="position:absolute;left:0px;bottom:0%;background-color:rgb(10, 29, 66);border-radius: 0px 6.88333px 0px 0px;display: flex;
+        -webkit-box-align: center;
+        align-items: center;transition:opacity 0.3s ease 0s, bottom 0.3s ease 0s, border-radius 0.3s ease 0s;">
+        <p style="color:#fff;padding:3px 12px;overflow:hidden;margin-bottom:0px;font-size:13px;font-weight: 600;"
+            ng-if="label">
+            {{name}}</p>
+    </div>
+</div>

@@ -1,0 +1,189 @@
+.board {
+    border-radius: 6px;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.22);
+    background: #fff;
+    position: relative;
+    padding: 10px;
+    margin: 0;
+    width: 236px;
+}
+
+.board .online-status {
+    display: none;
+}
+
+.board.is-online .online-status {
+    display: block;
+    float: right;
+    color: #fff;
+    background-color: #759e1a;
+    border-radius: 3px;
+    padding: 3px 6px;
+    margin: -3px 2px;
+    vertical-align: middle;
+    min-width: 6px;
+    min-height: 13px;
+}
+
+.board .board-link-wrapper {
+    color: #555;
+    display: block;
+    position: relative;
+    opacity: 0.82;
+}
+
+.board .board-link-wrapper:hover {
+    text-decoration: none;
+    opacity: 1;
+}
+
+.board .board-name {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    white-space: nowrap;
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    color: #555;
+    display: block;
+    font-size: 14px;
+    font-weight: bold;
+    height: 18px;
+    line-height: 18px;
+    margin: 0 0 6px;
+    position: relative;
+    height: auto;
+}
+
+.board .board-name .title,.board .board-name .fullname {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    white-space: nowrap;
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+}
+
+.board .board-name .title {
+    color: #333;
+    font-size: 15px;
+    line-height: 15px;
+    padding: 2px 0;
+}
+
+.board .board-name .title small {
+    display: block;
+    color: #999;
+    margin-top: 3px;
+}
+
+.board .board-name .title .username {
+    color: #000;
+}
+
+.board .board-name .fullname {
+    color: #8e8e8e;
+    font-size: 13px;
+}
+
+.board .board-cover-wrapper,.board .board-thumbs li {
+    background-color: #eee;
+    overflow: hidden;
+}
+
+.board .board-cover-wrapper {
+    position: relative;
+    overflow: hidden;
+    clear: both;
+    width: 100%;
+    height: 146px;
+}
+
+.board .board-cover-wrapper:after {
+    border-radius: 3px;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.33) inset;
+    content: " ";
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+.board .board-cover-wrapper .board-cover {
+    border-radius: 3px;
+    width: 100%;
+    min-height: 146px;
+}
+
+.board img {
+    border-radius: 2px;
+}
+
+.board .board-pin-count {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    border-radius: 2px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2),0 1px 0 rgba(255, 255, 255, 0.3);
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.7);
+    background-color: #000;
+    background-color: rgba(68, 68, 68, 0.7);
+    bottom: 3px;
+    color: #fff;
+    padding: 3px 6px;
+    position: absolute;
+    right: 3px;
+}
+
+.board .board-thumbs {
+    height: 51px;
+    margin: 4px 0 8px 0;
+    padding: 0;
+}
+
+.board .board-thumbs .thumb {
+    width: 51px;
+    height: 51px;
+}
+
+.board .board-thumbs li {
+    position: relative;
+    display: inline;
+    float: left;
+    height: 51px;
+    margin-left: 4px;
+    position: relative;
+    width: 51px;
+}
+
+.board .board-thumbs li:after {
+    border-radius: 3px;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.33) inset;
+    content: " ";
+    height: 51px;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 51px;
+}
+
+.board .board-thumbs li .thumb {
+    border-radius: 3px;
+    height: 51px;
+    width: 51px;
+}
+
+.board .board-thumbs li:first-child {
+    margin-left: 0;
+}
+
+.board .board-actions{
+    text-align: center;
+}
+
+.board .board-actions .btn {
+    width:48%;
+}
+
+.board .board-actions .btn:first-child {
+    margin-right: 5px;
+}

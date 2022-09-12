@@ -1,0 +1,17 @@
+{#{% apply spaceless %}#}
+    <li class="pin-comment" {% if index >= 3 %}style="display:none"{% endif %}>
+        <div class="commenter-thumb">
+            <a href="">
+                {% if comment.photo %}
+                    <img src="{{ comment.photo|replace({'origin': 'mini'}) }}" alt="{{ comment.user }}" />
+                {% else %}
+                    <div class="gender {% if comment.gender %}{{ comment.gender|lower }}{% endif %}"></div>
+                {% endif %}
+            </a>
+        </div>
+        <div class="commenter-text">
+            <a href="{{ path('profile', {'username': comment.user}) }}">{{ comment.user }}</a>
+            <p>{{ comment.comment }}&nbsp;</p>
+        </div>
+    </li>
+{#{% endapply %}#}

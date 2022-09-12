@@ -1,0 +1,94 @@
+{% extends 'layout.html.twig' %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+    <div class="bglogin"></div>
+    <div class="login-model">
+        <div class="contents">
+            <form action="{{ path('login') }}" class="login-form {% if error %}has-error{% endif %}" method="post">
+                <h1>Log In to ChatApp</h1>
+
+                <div class="social-buttons">
+                    {#<a href="{{ path('connect_facebook_start') }}" class="btn btn-block btn-facebook-connect">
+                        <em class="fa fa-facebook"></em>
+                        <span>Log In with Facebook</span>
+                    </a>
+                     <a href="#" class="btn btn-block btn-twitter-connect disabled">
+                        <em class="fa fa-twitter"></em>
+                        <span>Log In with Twitter</span>
+                    </a>
+                    <a href="#" class="btn btn-block btn-gplus-connect disabled">
+                        <em class="fa fa-google-plus"></em>
+                        <span>Log In with Google</span>
+                    </a> #}
+                </div>
+
+                <div class="login-fields">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                        <input type="text" name="email" class="form-control input-lg" placeholder="Username or Email" required="required" value="{{ last_username|default('') }}" />
+                    </div>
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-asterisk"></i></span>
+                        <input type="password" name="password" class="form-control input-lg" placeholder="Password" required="required" />
+                    </div>
+                    <small class="pull-right"><a href="{{ path('recover') }}" class="forgot-password">Forgot Password?</a></small>
+                </div>
+                <input type="hidden" name="_csrf_token"
+                       value="{{ csrf_token('authenticate') }}"
+                >
+
+                <div class="login-error">{% if error %}{{ error }}{% endif %}</div>
+
+                <div class="login-footer">
+                    <div class="login-footer-buttons">
+                        <button type="submit" class="btn btn-success">Login</button>
+                    </div>
+
+                    <p>Don't have an account? <a href="{{ path('register') }}">Register</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        require(['jquery'],
+            function ($) {
+                var currentBackground = 0;
+
+                var backgrounds = [];
+
+                backgrounds[0] = '/build/images/bg1.jpg';
+
+                backgrounds[1] = '/build/images/bg2.jpg';
+
+                backgrounds[2] = '/build/images/bg3.jpg';
+
+
+                function changeBackground() {
+
+                    currentBackground++;
+
+                    if (currentBackground > 2) currentBackground = 0;
+
+                    // $('body.login').css({
+                    //     'background-image': "url('" + backgrounds[currentBackground] + "')"
+                    // }).animate({opacity: 1}, 'fast');
+
+                    $('.bglogin').animate({opacity: 0}, 'slow', function() {
+                        $(this).css({
+                            'background-image': "url('" + backgrounds[currentBackground] + "')"
+                        }).animate({opacity: 1}, 'slow');
+                    });
+
+                    setTimeout(changeBackground, 10000);
+                }
+
+                $(document).ready(function () {
+
+                    setTimeout(changeBackground, 10000);
+
+                });
+            });
+    </script>
+{% endblock %}

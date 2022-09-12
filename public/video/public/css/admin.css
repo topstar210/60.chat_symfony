@@ -1,0 +1,366 @@
+div.camera_item video {
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+}
+
+.broadcast-video-item video {
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    background: #333c48;
+}
+
+:focus {
+    outline: none;
+}
+
+.main {
+    height: 100%;
+    width: 100%;
+    display: table;
+    height: 100vh;
+}
+
+.container-fluid {
+    display: table-cell;
+    height: 100%;
+    vertical-align: middle;
+}
+
+.stage-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #252c33;
+    height: 517px;
+    border-radius: 8px;
+    padding: 25px;
+}
+
+#my_videos {
+    display: flex;
+    background: #131313;
+    background-size: cover;
+    position: relative;
+    border-radius: 8px;
+    height: 100%;
+}
+
+#my_videos video {
+    width: 100%;
+    object-fit: fill;
+    position: relative;
+    border-radius: 8px;
+    border: 1px solid #000;
+}
+
+#videos-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: block;
+}
+
+#videos-mixed-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: block;
+}
+
+.media-container {
+    height: 100%;
+    width: 100% !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+.media-container h2 {
+    display: none !important;
+}
+
+.media-box {
+    height: 100%;
+    margin: 0 !important;
+    border: 1px solid #ccc !important;
+}
+
+.media-box video {
+    height: 100%;
+}
+
+input {
+    max-width: 200px;
+}
+
+.media-controls .control, .volume-control .control {
+    width: 22px !important;
+    height: 22px !important;
+    background-size: contain;
+}
+
+/* Card Style for login */
+
+.card-signin {
+    border: 0;
+    border-radius: 1rem;
+    background-color: #3a3a3aa2;
+    box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
+    color: #fff;
+}
+
+.card-signin .card-title {
+    margin-bottom: 2rem;
+    font-weight: 300;
+    font-size: 1.5rem;
+}
+
+.card-signin .card-body {
+    padding: 2rem;
+}
+
+.form-signin {
+    width: 100%;
+}
+
+.form-signin .btn {
+    margin-top: 2.5rem;
+    font-size: 80%;
+    letter-spacing: .1rem;
+    font-weight: bold;
+    padding: 1rem;
+    transition: all 0.2s;
+}
+
+.form-control {
+    width: 100%;
+    max-width: unset;
+    color: #fff;
+    border: 1px solid #9090906b;
+    background-color: transparent;
+}
+
+.form-control:focus {
+    color: #fff;
+    border: none;
+    background-color: transparent;
+    box-shadow: none;
+    border: 1px solid #e8e4e499;
+}
+
+.form-label-group {
+    margin-bottom: 1rem;
+}
+
+.form-control:disabled, .form-control[readonly] {
+    color: #aaa;
+    background-color: transparent;
+}
+
+#videos-remote-container video {
+    width: 100%;
+    height: 100px;
+    object-fit: fill;
+    position: relative;
+    float: right;
+    border-top-left-radius: 11px;
+    border: 3px solid #ff1414;
+    border-top-right-radius: 11px;
+}
+
+.join_request {
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+    font-size: 12px;
+    border-radius: inherit;
+}
+
+.overlayout_audio_btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    z-index: 9999;
+}
+.overlayout_user_btn {
+    position: absolute;
+    top: 10px;
+    right: 37px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+    z-index: 9999;
+}
+
+.overlayout_btn {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0px;
+    top: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 1;
+}
+
+.bottom-panel {
+    font-size: 14px;
+    background: #d8d5d5;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+}
+
+.stage_item video {
+    object-fit: fill;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+}
+
+.screen_item video {
+    object-fit: fill;
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+}
+
+.layout-item {
+    padding: 10px;
+    color: #fff;
+    background: #4a4c50;
+    border-radius: 10px;
+    width: 100%;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 3px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.layout-item:hover {
+    background: #8493a0;
+}
+
+.chat-icon {
+    position: absolute;
+    right: 6px;
+    cursor: pointer;
+}
+
+.chat-box {
+    background: #252c33;
+    height: 100%;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.chat-content {
+    height: 100%;
+    background: #252c33;
+    border-radius: 10px;
+    padding: 13px;
+    color: #fff;
+    height: 517px;
+    border: 1px solid #4a4c50;
+    overflow-y: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    margin: 0px;
+}
+
+.chat-text {
+    font-size: 13px;
+    color: #b1a5a5;
+}
+
+.stream-control-btn {
+    font-size: 12px;
+    background: #66727d;
+    border: #252c33;
+    color: #fff;
+    font-weight: 600;
+}
+
+.stream-control-btn:hover {
+    background: #352c33;
+    color: #fff;
+}
+
+.modal-content {
+    background-color: #2b2a2a;
+}
+
+.modal-footer {
+    border-top: none !important;
+}
+
+.fbJKOH {
+    display: inline-flex;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+    background-color: #252c33;
+    border-radius: 3px;
+    text-decoration: none;
+    transition: background 0.2s ease 0s, opacity 0.2s ease 0s;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+
+.fbJKOH:hover {
+    background-color:#33383e;
+}
+
+.fbJKOH svg {
+    fill: rgb(255 255 255);
+}
+
+
+.control-layout{
+    display: inline-flex;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    justify-content: center;
+    background-color: #252c33;
+    border-radius: 3px;
+    text-decoration: none;
+    transition: background 0.2s ease 0s, opacity 0.2s ease 0s;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+
+.control-layout:hover {
+    background-color: #1a1e23;
+}
+
+.control-layout svg {
+    fill: rgb(255 255 255);
+}
+.layout_manager{
+display:flex;
+flex-direction:column;
+}

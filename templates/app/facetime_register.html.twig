@@ -1,0 +1,170 @@
+{% extends 'layout.html.twig' %}
+
+{% block scripts_after %}
+    <script type="text/javascript">
+
+    </script>
+
+{% endblock %}
+
+
+
+{% block content %}
+        <style>
+            .form-check-inline{
+                display: inline-block;
+            }
+        </style>
+        <div class="container" style="position: relative;">
+            <div class="row" style="margin-top: 70px;margin-bottom: 70px">
+                <div class="col-md-5 ">
+                    <h1>Thank you!</h1>
+                    <h3 style="margin-top: 40px; color:#2b542c!important;">Let’s get started meeting people</h3>
+
+                    <div class="row">
+                        <div class="col-md-4">Your name:</div>
+                        <div class="col-md-8"><b>{{ people.name }}</b></div>
+                    </div>
+                    {% if people.birthday %}
+                    <div class="row">
+                        <div class="col-md-4">Birthday:</div>
+                        <div class="col-md-8"><b>{{ people.birthday}}</b></div>
+                    </div>
+                    {% endif %}
+                    <div class="row">
+                        <div class="col-md-4">Gender:</div>
+                        <div class="col-md-8"><b>{{ people.gender }}</b></div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 15px;">
+                        <button id="btnLetStart" onclick="startCountdown()" class="btn btn-lg btn-success">Let’s Start</button>
+                    </div>
+                </div>
+                <div class="col-md-7">
+                    <img src="{{ asset('static/facetime/call.gif') }}" style="max-width: 100%;"/>
+                </div>
+
+            </div>
+
+        </div>
+    <div id="countDown" class="windowFix"  style="display: none;">
+        <div class="mask"></div>
+        <div class="countdownWrap" id="countdownWrap">
+            5
+        </div>
+        <div></div>
+    </div>
+
+    <div id="chatRoom" class="windowFix" style="display: none;">
+        <div class="mask"></div>
+        <div class="chatWindow">
+            <iframe id="chatIframe" src="" style="width: 100%; height: 100%"></iframe>
+        </div>
+    </div>
+
+    <style>
+        .windowFix{
+            position:absolute; top: 0; left: 0; width: 100%;height: 100%;
+        }
+        .mask{
+            position: fixed; top: 0; left: 0; width: 100%;height: 100%; background: #000; z-index: 999999; opacity: 0.8;
+        }
+        .countdownWrap {
+            background: #1B924A; width: 50px; height: 50px; border-radius: 50%; border: 2px solid #fff; z-index: 9999999;
+            position: absolute; top: 50%;left: 50%; margin-top: -25px; margin-left: -25px;
+            box-shadow: 0 0 5px rgb(240,102,0);
+            opacity: 0;
+            animation-name: bounceIn;
+            animation-duration: 450ms;
+            animation-timing-function: linear;
+            animation-fill-mode: forwards;
+            font-size: 14em;
+            text-align: center;
+            color: #fff;
+        }
+
+        .countdownWrapActive{
+            width: 300px; height: 300px;
+            margin-top: -150px; margin-left: -150px;
+
+        }
+
+        .chatWindow{
+            width: 700px;
+            height: 392px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            z-index: 99999999;
+            background: #fff;
+            margin-left: -350px;
+            margin-top: -50px;
+        }
+
+        @keyframes bounceIn{
+            0%{
+                opacity: 0;
+                transform: scale(0.3) translate3d(0,0,0);
+            }
+            50%{
+                opacity: 0.9;
+                transform: scale(1.1);
+            }
+            80%{
+                opacity: 1;
+                transform: scale(0.89);
+            }
+            100%{
+                opacity: 1;
+                transform: scale(1) translate3d(0,0,0);
+            }
+        }
+
+    </style>
+
+    <script>
+
+        let count = 5;
+        let countDownInterval = null;
+
+        require([
+            'underscore',
+            'jquery',
+            'jquery.view',
+            'jquery.bridget'
+        ], function() {
+            'use strict';
+            // $('#btnLetStart').click(function () {
+            //     startCountdown();
+            // });
+            //
+            
+
+
+        });
+
+        function doMeetPeople() {
+            let url = '/meetup?hash={{ hash }}';
+            document.location = url;
+        }
+
+        function startCountdown() {
+            $('#countdownWrap').text(count);
+            $('#countDown').show();
+            $('#countdownWrap').addClass('countdownWrapActive');
+
+            countDownInterval = setInterval(function () {
+                count = count-1;
+                $('#countdownWrap').text(count);
+                if(count == 0){
+                    clearInterval(countDownInterval);
+                    count = 5;
+                    $('#countdownWrap').html('<table align="center" style="margin-top:90px;"><tr><td><div style="line-height: 30px;"><img src="/static/images/chatload.gif"/></div></td></tr><tr><td style="font-size: 16px; line-height: 25px;">Please wait a moment.</td></tr></table>')
+                    // $('#countDown').hide();
+
+                    doMeetPeople();
+                }
+            },1000)
+        }
+    </script>
+{% endblock %}

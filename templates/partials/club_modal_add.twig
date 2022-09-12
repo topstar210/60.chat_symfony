@@ -1,0 +1,319 @@
+{#{% apply spaceless %}#}
+<div id="addClubModal" class="modal fade addClubModal" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="clubHead">Add Club</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frmClub" action="{{ path('api_clubs_add') }}" method="post" data-toggle="validator" role="form" novalidate>
+                    <input type="hidden" name="club_id"/>
+                    <div class="form-group">
+                        <label for="clubName" class="control-label">Name</label>
+                        <input type="text" class="form-control" id="clubName" name="name" placeholder="Club Name" required>
+                        <div class="invalid-input">Required field.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="clubDes" class="control-label">Description</label>
+                        <textarea class="form-control" id="clubDes" name="description"></textarea>
+                    </div>
+                    <div class="form-group coverPhoto">
+                        <label for="clubCover" class="control-label">Cover Photo</label>
+                        <input type="hidden" class="form-control" name="photo" id="clubCover" >
+                        <div class="uploadImge"><a role="button" data-upload-file="{{ path('api_file_upload_file', {'token': app.user.token}) }}" class="btn btn-default" id="btn-attach-cover" style="position: relative">
+                                <i class="fa fa-photo"></i> Upload
+                            </a></div>
+                        <div class="preview" style="display: none"><img id="coverPhoto_preview"></div>
+                        <div class="message_error"></div>
+                        <div class="invalid-input">Required field.</div>
+                    </div>
+                    <div class="form-group backgroundPhoto">
+                        <label for="clubBackground" class="control-label">Main image</label>
+                        <input type="hidden" class="form-control" name="background" id="clubBackground" >
+                        <div class="uploadImge"><a role="button" data-upload-file="{{ path('api_file_upload_file', {'token': app.user.token}) }}" class="btn btn-default" id="btn-attach-background" style="position: relative">
+                                <i class="fa fa-photo"></i> Upload
+                            </a></div>
+                        <div class="preview" style="display: none"><img id="backgroundPhoto_preview"></div>
+                        <div class="message_error"></div>
+                        <div class="invalid-input">Required field.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inputName" class="control-label">Location</label>
+                        <div id="locationName"></div>
+                        <input type="hidden" value="" id="latitude" name="latitude">
+                        <input type="hidden" value="" id="longitude" name="longitude">
+{#                        <a id="getMyLocation" class="btn btn-primary btn-sm">Get my location</a>#}
+                    </div>
+
+
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Submit</button> <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <span class="ajax-loader-inline" style="top: 10px;position: relative;display: none;"></span>
+                        <div class="frmError" style="display: none;" id="frmError"></div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    require(['jquery','jquery.autosize',
+            'jquery.uploader',
+            'masonry',
+            'imagesloaded',
+            'jquery.infinitescroll',
+            'jquery.bridget'],
+        function($) {
+
+            $('#getMyLocation').click(function () {
+                getMyipLookUp();
+            });
+
+            getMyipLookUp();
+
+
+            //add Club
+            $('#frmClub').submit(function (e) {
+                e.preventDefault();
+                var error = false;
+                $('.addClubModal .input_error').removeClass('input_error');
+                $('.addClubModal .invalid-input').hide();
+                $('.addClubModal #frmError').hide();
+
+                if(isUpload){
+                    $('.addClubModal #frmError').html("Please wait while file is uploading...");
+                    $('.addClubModal #frmError').fadeIn();
+                    return;
+                }
+
+                if(!$('.addClubModal #clubName').val()){
+                    $('.addClubModal #clubName').addClass('input_error');
+                    $('.addClubModal #clubName').closest('.form-group').find('.invalid-input').show();
+                    error = true;
+                }
+
+                if(!$('.addClubModal #clubDes').val()){
+                    $('.addClubModal #clubDes').addClass('input_error');
+                    $('.addClubModal #clubDes').closest('.form-group').find('.invalid-input').show();
+                    error = true;
+                }
+
+                if(!$('.addClubModal #clubCover').val()){
+                    $('.addClubModal #btn-attach-cover').addClass('input_error');
+                    $('.addClubModal #clubCover').closest('.form-group').find('.invalid-input').show();
+                    error = true;
+                }
+
+                if(!$('.addClubModal #clubBackground').val()){
+                    $('.addClubModal #btn-attach-background').addClass('input_error');
+                    $('.addClubModal #clubBackground').closest('.form-group').find('.invalid-input').show();
+                    error = true;
+                }
+
+                if(!error){
+                    $('.addClubModal .ajax-loader-inline').show();
+                    var frm_url = $(this).attr('action')+'?'+$('#frmClub').serialize()+'&token='+ChatApp.userToken;
+
+                    $.getJSON(frm_url, {
+                        token: ChatApp.userToken
+                    }, function(json) {
+                        $('.addClubModal .ajax-loader-inline').hide();
+                        // console.log(json);
+
+                        if(json.success){
+                            $.iGrowl({
+                                type: 'success-sat',
+                                message: 'Your Club has been added.',
+                                icon: 'fa-check-circle-o',
+                                delay:3000
+                            })
+                        }else{
+                            $.iGrowl({
+                                type: 'error-sat',
+                                message: json.data.message,
+                                icon: 'fa-times-circle-o',
+                                delay:5000
+                            })
+                        }
+
+                        // reload list
+                        setTimeout(function() {
+                            $('.masonry').masonry();
+                        }, 0);
+
+                        $('#addClubModal').modal('hide');
+
+                    });
+
+                }
+
+                return false;
+            })
+
+            var currentUpload = '';
+            var isUpload = false;
+
+            /**
+             * Upload cover file
+             */
+            var uploader1 = new Uploader({
+                selectButton: '.addClubModal #btn-attach-cover',
+                url: $('.addClubModal #btn-attach-cover').data('upload-file')
+            });
+
+
+            uploader1.on('uploadProgress', function() {
+                $('.addClubModal .ajax-loader-inline').show();
+            });
+
+            uploader1.on('uploadComplete', function() {
+                $('.addClubModal .ajax-loader-inline').hide();
+                isUpload = false;
+                $('.addClubModal #frmError').hide();
+                if(currentUpload == 'clubCover'){
+                    var respone = JSON.parse(arguments[2]);
+                    // console.log(respone);
+                    if(respone.success){
+                        var f = respone.data.split('/');
+                        $('.addClubModal .coverPhoto .message_error').hide();
+                        $('.addClubModal #clubCover').val(respone.data);
+                    }else{
+                        $('.addClubModal .coverPhoto .message_error').show();
+                        $('.addClubModal .coverPhoto .message_error').text(respone.data.message);
+                        $('.addClubModal #clubCover').val('');
+                        $('.addClubModal .coverPhoto .preview').hide();
+                    }
+
+                }
+
+            });
+
+            $('.addClubModal .coverPhoto input[type=file]').click(function (e) {
+                if(isUpload) {
+                    e.preventDefault();
+                    $('.addClubModal #frmError').html("Please wait while file is uploading...");
+                    $('.addClubModal #frmError').fadeIn();
+                    return false;
+                }
+                currentUpload = 'clubCover';
+            });
+
+            /**
+             * Upload Background file
+             */
+            var uploader2 = new Uploader({
+                selectButton: '.addClubModal #btn-attach-background',
+                url: $('.addClubModal #btn-attach-background').data('upload-file')
+            });
+
+
+            uploader2.on('uploadProgress', function() {
+                $('.addClubModal .ajax-loader-inline').show();
+            });
+
+            uploader2.on('uploadComplete', function() {
+                $('.addClubModal .ajax-loader-inline').hide();
+                isUpload = false;
+                $('.addClubModal #frmError').hide();
+                if(currentUpload == 'clubBackground') {
+                    var respone = JSON.parse(arguments[2]);
+                    // console.log(respone);
+                    if (respone.success) {
+                        var f = respone.data.split('/');
+                        $('.addClubModal .backgroundPhoto .message_error').hide();
+                        $('.addClubModal #clubBackground').val(respone.data);
+                    } else {
+                        $('.addClubModal .backgroundPhoto .message_error').show();
+                        $('.addClubModal .backgroundPhoto .preview').hide();
+                        $('.addClubModal .backgroundPhoto .message_error').text(respone.data.message);
+                        $('.addClubModal #clubBackground').val('');
+                    }
+
+                }
+            });
+
+            $('.addClubModal .backgroundPhoto input[type=file]').click(function (e) {
+                if(isUpload) {
+                    e.preventDefault();
+                    $('.addClubModal #frmError').html("Please wait while file is uploading...");
+                    $('.addClubModal #frmError').fadeIn();
+                    return false;
+                }
+                currentUpload = 'clubBackground';
+            });
+
+            //preview images
+
+            $('.addClubModal .coverPhoto input[type=file]').change(function (e) {
+                    preview_image(e,'coverPhoto_preview');
+                    isUpload = true;
+            });
+            $('.addClubModal .backgroundPhoto input[type=file]').change(function (e) {
+                    preview_image(e,'backgroundPhoto_preview');
+                    isUpload = true;
+            });
+
+        });
+
+    function preview_image(event,previewId)
+    {
+        var reader = new FileReader();
+        reader.onload = function()
+        {
+            var output =  $('.addClubModal #'+previewId);
+            output.attr('src',reader.result);
+            $('.addClubModal #'+previewId).parent().show();
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    setInterval(inputFileClubPhotoEvent,500);
+    function inputFileClubPhotoEvent() {
+        require(['jquery'],
+            function($) {
+                $('.addClubModal .coverPhoto input[type=file]').change(function (e) {
+                    preview_image(e, 'coverPhoto_preview');
+                    isUpload = true;
+                });
+            });
+    }
+
+    setInterval(inputFileClubBackgroundEvent,500);
+    function inputFileClubBackgroundEvent() {
+        require(['jquery'],
+            function($) {
+                $('.addClubModal .backgroundPhoto input[type=file]').change(function (e) {
+                    preview_image(e, 'backgroundPhoto_preview');
+                    isUpload = true;
+                });
+            });
+    }
+
+    function getMyipLookUp () {
+        $('.addClubModal .ajax-loader').show();
+        $.ajax('http://ip-api.com/json')
+            .then(
+                function success(response) {
+                    $('.addClubModal .ajax-loader').hide();
+                    // console.log('User\'s Location Data is ', response);
+                    $('.addClubModal input[name=latitude]').val(response.lat);
+                    $('.addClubModal input[name=longitude]').val(response.lon);
+
+                    $('.addClubModal #locationName').text(response.regionName + ', '+ response.country);
+
+                },
+
+                function fail(data, status) {
+                    $('.addClubModal .ajax-loader').hide();
+                    console.log('Request failed.  Returned status of',
+                        status);
+                }
+            );
+    }
+</script>
+{#{% endapply %}#}

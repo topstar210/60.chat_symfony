@@ -1,0 +1,449 @@
+{% extends 'layout.html.twig' %}
+
+{% block scripts_after %}
+    <script type="text/javascript">
+        require(['js/app/moments', 'js/app/profile']);
+    </script>
+
+{% endblock %}
+
+
+
+{% block content %}
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-3 leftPanel">
+                    <div class="">
+                        <h4>Profile</h4>
+                        <div class="toc homeBoxWhite">
+                            <ul class="list-group">
+                                <li class="list-group-item"><a href="/profile/{{ app.user.username }}"><i class="fa fa-user"></i>  My Profiles</a></li>
+                                <li class="list-group-item"><a href="/profile/{{ app.user.username }}/moments"><i class="fa fa-picture-o"></i> My Moments</a></li>
+                                <li class="list-group-item"><a href="/profile/{{ app.user.username }}/contacts"><i class="fa fa-users"></i> My Contacts</a></li>
+                                <li class="list-group-item"><a href="/settings"><i class="fa fa-cog"></i> Setting</a></li>
+                                <li class="list-group-item"><a href="/terms-service"><i class="fa fa-lock"></i> Privacy</a></li>
+                                <li class="list-group-item"><a href="/about"><i class="fa fa-exclamation-circle"></i> About</a></li>
+                            </ul>
+                            <h4>Social Networks</h4>
+                            <ul class="list-group">
+                                <li class="list-group-item"><a href="https://facebook.com/TheChatApp" target="_blank"><i class="fa fa-facebook"></i> Like us on Facebook</a></li>
+                                  <li class="list-group-item"><a href="https://www.instagram.com/chatapp2020/" target="_blank"><i class="fa fa-instagram"></i> Follow us on Instagram</a></li>
+                                <li class="list-group-item"><a href="/logout"><i class="fa fa-sign-out"></i> Sign out</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-9 homeContent">
+                    <div class="row">
+                        <div class="col-md-4 boxMoment">
+                            <div class="Box">
+                                <h4>Moments </h4>
+                                <div><div class="ajax-loader-inline"></div></div>
+                                <div id="momentContent" class="homeBox">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 boxClub">
+                            <div class="Box">
+                                <h4>Clubs</h4>
+                                <div class="BoxMap">
+                                    <div id="clubMap"></div>
+                                </div>
+                                <div class="clubMenu clearfix">
+                                    <a href="" class="active">All Clubs</a>
+                                    <a href="">My Clubs</a>
+                                </div>
+                                <div class="clearfix" style="background: #fff">
+                                    <div><div class="ajax-loader-inline"></div></div>
+                                    <div id="clubContent" class="homeBox">
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 boxChat">
+                            <div class="Box">
+                                <h4>Chats</h4>
+                                <div  class="homeBoxWhite">
+                                <div><div class="ajax-loader-inline"></div></div>
+                                <div id="chatContent">
+
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDUz28cRHkiTj0gw4ec80EAxys-gZzb894"></script>
+    <script type="text/javascript">
+        var clubMap;
+        google.maps.event.addDomListener(window, 'load', function() {
+            var mapOptions = {
+                zoom: 8,
+                maxZoom: 12,
+                zoomControl: true,
+                zoomControlOptions: {
+                    style: google.maps.ZoomControlStyle.LARGE,
+                    position: google.maps.ControlPosition.RIGHT_TOP
+                },
+                panControl: true,
+                panControlOptions: {
+                    position: google.maps.ControlPosition.TOP_RIGHT
+                },
+                mapTypeControl: false,
+                streetViewControl: false,
+                center: new google.maps.LatLng({{ app.user.latitude|default(35.128410) }}, {{ app.user.longitude|default(-117.960170) }}),
+            };
+
+            clubMap = new google.maps.Map(document.getElementById('clubMap'), mapOptions);
+
+            var marker = new google.maps.Marker({
+                position: new google.maps.LatLng({{ app.user.latitude|default(0) }}, {{ app.user.longitude|default(0) }}),
+                map: clubMap,
+                title: '{{ app.user.username }}',
+                icon: '//maps.google.com/mapfiles/ms/icons/green-dot.png'
+            });
+        });
+    </script>
+    <script>
+        require([
+            'underscore',
+            'jquery',
+            'jquery.view',
+            'jquery.bridget'
+        ], function() {
+            'use strict';
+
+            //moments
+            var $_momentContent = $('#momentContent');
+            $_momentContent.html('');
+            var template_moment = _.template($('#home-comment-template').html());
+            var moment_url = '/api/moments/search';
+            var $loaderMoment = $('.boxMoment .ajax-loader-inline')
+            $loaderMoment.show();
+            $.getJSON(moment_url, {
+                token: ChatApp.userToken,
+                type:'all',
+                distance:'',
+                gender:'',
+                page:1,
+            }, function(json) {
+                $loaderMoment.hide();
+                if(json.success){
+                    // console.log(json);
+                    var data = json.data.moments.result;
+                    for(var i=0; i<data.length;i++){
+                        var moment = data[i];
+                        if (!moment.images || moment.images.length === 0) continue;
+                        var comments = [];
+                        for (var j=0; j<moment.comments.length; j++) {
+                            // console.log(moment.comments[j].user,moment.comments[j]);
+                            if(moment.comments[j]){
+                                var template = _.template($('#moment-comment-template').html());
+                                comments.push(template($.extend(moment.comments[j], {index: j})).replace(/USERNAME/g, moment.comments[j].user));
+                            }
+
+                        }
+
+                        var isLike = false;
+                        for (var j=0; j<moment.likes.length; j++) {
+                            if (moment.likes[j].user == ChatApp.userUsername) {
+                                isLike = true;
+                            }
+                        }
+
+                        moment.isLike = isLike;
+                        moment.image = moment.images[0];
+
+                        var momentItem = template_moment($.extend(momentItem, moment));
+                        $_momentContent.append(momentItem);
+                    }
+
+                    View($('a.view[href]'));
+
+                }else{
+                    $.iGrowl({
+                        type: 'error-sat',
+                        message: json.data.message,
+                        icon: 'fa-times-circle-o',
+                        delay:5000
+                    })
+                }
+
+            });
+
+            //club
+            var $_clubContent = $('#clubContent');
+            $_clubContent.html('');
+            var template_club = _.template($('#home-club-template').html());
+            var club_url = '/api/clubs/search';
+            var $loaderClub = $('.boxClub .ajax-loader-inline')
+            $loaderClub.show();
+            $.getJSON(club_url, {
+                token: ChatApp.userToken,
+                sort:'distance',
+                distance:2500,
+                page:1,
+            }, function(json) {
+                $loaderClub.hide();
+                if(json.success){
+                    // console.log(json);
+                    var data = json.data.clubs.result;
+                    for(var i=0; i<data.length;i++){
+                        var club = data[i];
+
+                        // skip if missing location
+                        if (!club.latitude || !club.longitude) {
+                            continue;
+                        }
+                        // add marker
+                        else {
+                            var marker = new google.maps.Marker({
+                                position: new google.maps.LatLng(club.latitude, club.longitude),
+                                map: clubMap,
+                                title: club.name,
+                                info: '<h4>' + club.name + '</h4><p>' + club.description + '</p>',
+                                icon: '//maps.google.com/mapfiles/ms/icons/red-dot.png'
+                            });
+
+                            var infowindow = new google.maps.InfoWindow();
+
+                            google.maps.event.addListener(marker, 'click', function() {
+                                infowindow.setContent(this.info);
+                                infowindow.open(clubMap, this);
+                            });
+                        }
+
+                        var participants = [];
+                        var participants_picures = [];
+                        var participants_nopicures = [];
+
+                        var me = null;
+                        var me_position = -1;
+                        var total_members = 0;
+                        var total_applications = 0;
+
+                        _.each(club.participants, function(val, index, list) {
+
+                            var member_img = '';
+                            var gender = '';
+                            if(val.gender){
+                                gender = val.gender.toLocaleLowerCase();
+                            }
+
+                            if(val.photo){
+                                member_img =  '<img src="'+val.photo.replace("/origin/", "/medium/")+'"/>';
+                            }
+                            val.avatar = '<a class="gender '+gender+'">'+member_img+'</a>'
+
+                            if(val.user == ChatApp.userUsername){
+                                me = val;
+                                me_position = index;
+                            }
+
+                            if(val.enabled){
+                                if(val.photo){
+                                    participants_picures.push(val)
+                                }else{
+                                    participants_nopicures.push(val)
+                                }
+                                participants.push(val);
+                                total_members++;
+                            }else{
+                                total_applications++;
+                            }
+
+                        });
+
+                        var member_info = '';
+                        if(total_members){
+                            member_info += total_members+ ' member';
+                            if(total_members >1) member_info += 's';
+                        }
+
+                        if(total_applications){
+                            member_info += ', '+total_applications+ ' applicant';
+                            if(total_applications >1) member_info += 's';
+                        }
+
+                        club.member_info = member_info;
+                        var clubItem = template_club($.extend(clubItem, club));
+                        $_clubContent.append(clubItem);
+                    }
+
+                }else{
+                    $.iGrowl({
+                        type: 'error-sat',
+                        message: json.data.message,
+                        icon: 'fa-times-circle-o',
+                        delay:5000
+                    })
+                }
+
+            });
+
+            //chatBox
+
+            var $_chatContent = $('#chatContent');
+            $_chatContent.html('');
+            var template_chat = _.template($('#home-chat-template').html());
+            var chat_url = '/api/messages/open_chats';
+            var $loaderChat = $('.boxChat .ajax-loader-inline')
+            $loaderChat.show();
+            $.getJSON(chat_url, {
+                token: ChatApp.userToken,
+                limit:20,
+                page:1
+
+            }, function(json) {
+                 console.log("Chat",json);
+                $loaderChat.hide();
+                 var data = json.data.chats.result;
+                for(var i=0; i<data.length;i++){
+                    var chat = data[i];
+
+
+                    var tmp = []; var sender = null;
+
+                    if(chat.participants.length > 2) {
+                        for (var j = 0; j < chat.participants.length; j++) {
+                            tmp.push(chat.participants[j].username);
+                            if (chat.participants[j].username == chat.last_message.from_username) {
+                                sender = chat.participants[j];
+                            }
+                        }
+                        chat.participants_string = tmp.join(',');
+                        chat.sender = sender;
+                    }else{
+                        chat.participants_string = chat.participants[0].username;
+                        chat.sender = chat.participants[0];
+                    }
+
+                    var chatItem = template_chat($.extend(chatItem, chat));
+                    $_chatContent.append(chatItem);
+
+                }
+            });
+
+        });
+    </script>
+
+    <script type="text/template" id="home-comment-template">
+        <div class="homeMomentItem" data-id="<%= id%>">
+            <div class="row boxhead">
+                <div class="col-sm-3 col-avatar">
+                    <a href="/profile/<%=username%>" class="avatar gender">
+                        <% if (!_.isNull(photo) && photo.length>0) { %>
+                        <img class="credit-img" src="<%=photo.replace("/origin/", "/medium/")%>" alt="<%=username%>" />
+                        <% } else { %>
+                        <span class="credit-img gender <% if (gender) { %><%=gender.toLowerCase()%><% } %>"></span>
+                        <% } %>
+                    </a>
+                </div>
+                <div class="col-sm-9">
+                    <div class="name"> <%=name%></div>
+                    <div class="time"><i class="fa fa-clock-o"></i> <%=time_ago(date_created.date)%></div>
+                    <div class="distance">
+                        <% if (distance>0) { %>
+                        <span>
+                        <em class="fa fa-map-marker"></em>
+                        <em class="pin-social-meta-count"><%=parseFloat(distance).toFixed(2)%> {% if app.user.distanceBy == constant('App\\Entity\\User::DISTANCEBY_MILES') %}mil{% else %}km{% endif %}</em>
+                    </span>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+            <div class="boxpicture">
+                <div class="row">
+                    <div class="col-sm-12">
+                    <a href="<%=image.replace("/origin/", "/large/")%>" title="<%=name%>" class="view" rel="moment">
+                    <% if (image.length>0) { %>
+                    <img src="<%=image.replace("/origin/", "/small/")%>" alt="<%=name%>" />
+                    <% } else { %>
+                    <img />
+                    <% } %>
+                    </a>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <span class="comments">
+                    <em class="fa fa-comment"></em>
+                    <em class="pin-social-meta-count pin-moment-count"><%=comments.length%></em>
+                </span>
+                    <a class="likes js-moment-like pointer liked<%=isLike%>" title="<% if (isLike) { %>Dislike<% } else { %>Like<% } %>"
+                       data-like-url="{{ path('api_moments_like', {'moment_id': 'MID'}) }}"
+                       data-unlike-url="{{ path('api_moments_unlike', {'moment_id': 'MID'}) }}"
+                       data-is-like="<% if (isLike) { %>true<% } else { %>false<% } %>"
+                    >
+                        <em class="icon_like fa fa-heart"></em>
+                        <em class="pin-social-meta-count pin-like-count"><%=likes.length%></em>
+                    </a>
+                </div>
+                <div class="col-sm-6 text-right">Comment</div>
+            </div>
+        </div>
+    </script>
+    <script type="text/template" id="home-club-template">
+            <div class="homeClubItem pointer" data-clubid="<%=id%>" data-cluburl="/api/clubs/get" onclick="viewClub(this)">
+                <div class="row">
+                    <div class="col-sm-3 clubImg">
+                        <% if (!_.isNull(photo) && photo.length>0) { %>
+                        <img class="board-cover" src="<%=photo.replace("/origin/", "/large/")%>" alt="<%=name%>" />
+                        <% } else if (!_.isNull(background) && background.length>0) { %>
+                        <img class="board-cover" src="<%=background.replace("/origin/", "/large/")%>" alt="<%=name%>" />
+                        <% } else { %>
+                        <div class="board-cover"></div>
+                        <% } %>
+                    </div>
+                    <div class="col-sm-9">
+                        <div class="name"><%=name%></div>
+                        <div class="distance">
+                            <% if (distance>0) { %>
+                            <span>
+                                <em class="fa fa-map-marker"></em>
+                                <em class="pin-social-meta-count"><%=parseFloat(distance).toFixed(2)%> {% if app.user.distanceBy == constant('App\\Entity\\User::DISTANCEBY_MILES') %}mil{% else %}km{% endif %}</em>
+                            </span>
+                            <% } %>
+                        </div>
+                        <div class="member"><i class="fa fa-users"></i> <%= member_info%></div>
+                    </div>
+                </div>
+            </div>
+    </script>
+
+    <script type="text/template" id="home-chat-template">
+        <div class="homeChatItem js-recent-message pointer" data-participants ="<%=participants_string%>" data-message="<%=last_message.message%>" data-chat_id="<%=chat_id%>">
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="avatar_square">
+                        <% if (!_.isNull(sender.photo) && sender.photo.length>0) { %>
+                        <img class=" credit-img" src="<%=sender.photo.replace("/origin/", "/medium/")%>" />
+                        <% } else { %>
+                        <span style="width: 60px; height: 60px;" class=" credit-img gender <% if (sender.gender) { %><%=sender.gender.toLowerCase()%><% } %>"></span>
+                        <% } %>
+                    </div>
+                </div>
+                <div class="col-sm-9">
+                    <div class="name"><% if(participants.length > 2){ %><%=participants_string%><% }else{ %><%=sender.username%><% } %></div>
+                    <% if(participants.length > 2){ %>
+                    <div><i class="fa fa-users"></i> <%= participants.length%></div>
+                    <% } %>
+                    <div class="message">
+                        <%=last_message.message%>
+                    </div>
+                    <i class="fa fa-clock-o"></i> <%= time_ago(last_message.date_created.date)%>
+                </div>
+
+            </div>
+        </div>
+    </script>
+
+    {% include 'partials/club_modal_view.twig' %}
+    {% include 'partials/club_modal_edit.twig' %}
+    {% include 'partials/club_modal_delete.twig' %}
+    {% include 'partials/moment_comment_tmpl_js.twig' %}
+{% endblock %}

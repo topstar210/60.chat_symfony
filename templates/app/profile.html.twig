@@ -1,0 +1,222 @@
+{% extends 'layout.html.twig' %}
+
+{% block scripts_after %}
+    <script type="text/javascript">
+        require(['js/app/profile']);
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="profile-header-wrapper">
+        <div class="header">
+            <div class="profile-image {% if is_granted('ROLE_ADMIN') and user.background %}with-background{% endif %}">
+                <img src="{{ s3url(user.photo, 'medium', true) }}" class="img-thumbnail {% if not user.photo %}gender {{ user.gender|lower }}{% endif %}" title="{{ user.username }}" />
+                {% if is_granted('ROLE_ADMIN') and user.background %}
+                    <img src="{{ s3url(user.background, 'medium') }}" class="img-thumbnail" title="background" />
+                {% endif %}
+            </div>
+
+            <div class="profile-header-bar" data-spy="affix" data-offset-top="120">
+                <div class="fixed-header-name-and-image">
+                    <div class="buttons">
+
+                        {% if user.username != app.user.username %}
+                            <button type="button" data-user="{{user.username}}" class="btn btn-info js-send-message" title="Send Message"><i class="fa fa-comment"></i></button>
+
+                            <button type="button" class="btn {% if isFriend %}btn-danger{% else %}btn-default{% endif %} js-contact-favorite"
+                                data-favorite-url="{{ path('api_contacts_add_username', {'username': user.username}) }}"
+                                data-unfavorite-url="{{ path('api_contacts_delete_username', {'username': user.username}) }}"
+                                data-is-favorite="{% if isFriend %}true{% else %}false{% endif %}"
+
+                                title="{% if isFriend %}Remove Contact{% else %}Add Contact{% endif %}"
+                            >
+                                <i class="fa fa-{% if isFriend %}minus{% else %}plus{% endif %}"></i>
+                            </button>
+                        {% endif %}
+
+                        {% if (is_granted('ROLE_ADMIN')) %}
+                            {% if user.photo %}
+                                <a href="#" class="btn btn-default js-profile-reset-photo"
+                                    data-url="{{ path('api_profile_reset_photo', {'username': user.username}) }}"
+
+                                    title="Reset Photo"
+                                >
+                                    <em class="fa fa-photo"></em>
+                                </a>
+                            {% endif %}
+
+                            {% if user.background %}
+                                <a href="#" class="btn btn-default js-profile-reset-background"
+                                    data-url="{{ path('api_profile_reset_photo', {'username': user.username, 'is_background': true}) }}"
+
+                                    title="Reset Background"
+                                >
+                                    <em class="fa fa-photo"></em>
+                                </a>
+                            {% endif %}
+
+                            {% if app.user.username != user.username %}
+                                <a href="#" class="btn btn-default js-profile-delete"
+                                    data-url="{{ path('api_profile_delete', {username: user.username}) }}"
+
+                                    title="Delete Profile"
+                                >
+                                    <em class="fa fa-trash"></em>
+                                </a>
+                            {% endif %}
+                        {% elseif app.user.username != user.username %}
+                            <a href="#" class="btn btn-default js-profile-report"
+                                data-url="{{ path('api_profile_report') }}"
+                                data-username="{{ user.username }}"
+
+                                title="Report Profile"
+                            >
+                                <em class="fa fa-ban"></em>
+                            </a>
+                        {% endif %}
+                    </div>
+
+                    <div class="fixed-header-image">
+                        <img src="{{ s3url(user.photo, 'medium', true) }}" class="img-thumbnail {% if not user.photo %}gender {{ user.gender|lower }}{% endif %}" title="{{ user.username }}" />
+                    </div>
+                    <div class="fixed-header-name">{{ user.username }}</div>
+                </div>
+            </div>
+
+            <div class="profile-info-bar">
+                <div class="about-container">
+                    <div class="about">
+                        <div class="name">{{ user.username }}</div>
+
+                        <ul>
+                            {% for prop in ['username', 'gender', 'ethnicity', 'age', 'region', 'interest', 'greeting'] %}
+                                {% set value = user.__get(prop) %}
+                                {% if value %}
+                                    {% if prop == 'interest' %}
+                                        {% set value = value|replace({'|': ', '}) %}
+                                    {% endif %}
+                                    <li><strong>{{ prop|title }}:</strong> {{ value }}</li>
+                                    {% if not loop.last %}<li><span class="middot">·</span></li>{% endif %}
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+
+                        <div class="profile_buttons">
+
+                            {% if user.username != app.user.username %}
+                                <button type="button" data-user="{{user.username}}" class="btn btn-info js-send-message" title="Send Message"><i class="fa fa-comment"></i> Send Message</button>
+
+                                <button type="button" class="btn {% if isFriend %}btn-danger{% else %}btn-default{% endif %} js-contact-favorite"
+                                        data-favorite-url="{{ path('api_contacts_add_username', {'username': user.username}) }}"
+                                        data-unfavorite-url="{{ path('api_contacts_delete_username', {'username': user.username}) }}"
+                                        data-is-favorite="{% if isFriend %}true{% else %}false{% endif %}"
+
+                                        title="{% if isFriend %}Remove Contact{% else %}Add Contact{% endif %}"
+                                >
+                                    <i class="fa fa-{% if isFriend %}minus{% else %}plus{% endif %}"></i>
+                                    {% if isFriend %}Remove Contact{% else %}Add Contact{% endif %}
+                                </button>
+                            {% endif %}
+
+                            {% if is_granted('ROLE_ADMIN') %}
+                                {% if user.photo %}
+                                    <a href="#" class="btn btn-default js-profile-reset-photo"
+                                       data-url="{{ path('api_profile_reset_photo', {'username': user.username}) }}"
+
+                                       title="Reset Photo"
+                                    >
+                                        <em class="fa fa-photo"></em> Reset Photo
+                                    </a>
+                                {% endif %}
+
+                                {% if user.background %}
+                                    <a href="#" class="btn btn-default js-profile-reset-background"
+                                       data-url="{{ path('api_profile_reset_photo', {'username': user.username, 'is_background': true}) }}"
+
+                                       title="Reset Background"
+                                    >
+                                        <em class="fa fa-photo"></em> Reset Background
+                                    </a>
+                                {% endif %}
+
+                                {% if app.user.username != user.username %}
+                                    <a href="#" class="btn btn-default js-profile-delete"
+                                       data-url="{{ path('api_profile_delete', {username: user.username}) }}"
+
+                                       title="Delete Profile"
+                                    >
+                                        <em class="fa fa-trash"></em> Delete Profile
+                                    </a>
+                                {% endif %}
+                            {% elseif app.user.username != user.username %}
+                                <a href="#" class="btn btn-default js-profile-report"
+                                   data-url="{{ path('api_profile_report') }}"
+                                   data-username="{{ user.username }}"
+
+                                   title="Report Profile"
+                                >
+                                    <em class="fa fa-ban"></em> Report Profile
+                                </a>
+                            {% endif %}
+                        </div>
+
+                        <p class="about-text">{{ user.__get('aboutme')|default('') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if user.id == app.user.id or is_granted('ROLE_ADMIN') %}
+        <div class="profile-filter-bar info-bar info-bar-base">
+            <div class="divider">
+                <hr />
+            </div>
+
+            <div class="tabs">
+                <ul>
+                    <li><a href="{{ path('profileType', {'username': user.username, 'type': 'moments'}) }}" {% if type == 'moments' %}class="active"{% endif %}><span class="value">{{ user.moments|length }}</span> <span class="label">Moments</span></a></li>
+                    <li><a href="{{ path('profileType', {'username': user.username, 'type': 'contacts'}) }}" {% if type == 'contacts' %}class="active"{% endif %}><span class="value">{{ user.friends|length }}</span> <span class="label">Contacts</span></a></li>
+                </ul>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="container">
+        {% if type == 'moments' %}
+            <div class="masonry-wrapper">
+                <div class="masonry"></div>
+            </div>
+
+            <div class="masonry-loadmore text-center">
+                <a href="#" class="js-loadmore-moments" data-url="{{ path('api_moments_search', {'type': 'user', 'username': user.username}) }}">
+                    <span class="badge">Load more</span>
+                </a>
+            </div>
+
+            {% include 'partials/moment_tmpl_js.twig' %}
+            {% include 'partials/moment_comment_tmpl_js.twig' %}
+
+            <script type="text/javascript">
+                require(['js/app/moments']);
+            </script>
+
+        {% elseif type == 'contacts' and (user.id == app.user.id or is_granted('ROLE_ADMIN')) %}
+            <div class="masonry-wrapper">
+                <div class="masonry"></div>
+            </div>
+
+            <div class="masonry-loadmore text-center">
+                <a href="#" class="js-loadmore-contacts" data-url="{{ path('api_contacts_search', {'type': 'friends', 'username': user.username}) }}">
+                    <span class="badge">Load more</span>
+                </a>
+            </div>
+
+            {% include 'partials/contact_tmpl_js.twig' %}
+
+            <script type="text/javascript">
+                require(['js/app/contacts']);
+            </script>
+        {% endif %}
+    </div>
+{% endblock %}

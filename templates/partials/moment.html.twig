@@ -1,0 +1,122 @@
+{#{% apply spaceless %}#}
+    <div class="pin-wrapper">
+        <div class="pin-image-action-button-wrapper">
+            <div class="pin-action pin-action-delete">
+                {% if is_granted('ROLE_ADMIN') %}
+                    <button type="button" class="btn btn-default js-moment-delete"
+                            data-url="{{ path('api_moments_delete', {'moment_id': moment.id}) }}"
+                        >
+                        <em class="fa fa-trash"></em>
+                    </button>
+                {% else %}
+                    {% if moment.username == app.user.username %}
+                        <button type="button" class="btn btn-default js-moment-delete"
+                                data-url="{{ path('api_moments_delete', {'moment_id': moment.id}) }}"
+                            >
+                            <em class="fa fa-trash"></em>
+                        </button>
+                    {% else %}
+                        <button type="button" class="btn btn-default js-moment-block"
+                                data-url="{{ path('api_moments_block', {'moment_id': moment.id}) }}"
+                            >
+                            <em class="fa fa-ban"></em>
+                        </button>
+                    {% endif %}
+                {% endif %}
+            </div>
+
+            {% set isLike = false %}
+            {% for like in moment.likes %}
+                {% if like.user == app.user.username %}
+                    {% set isLike = true %}
+                {% endif %}
+            {% endfor %}
+
+            <div class="pin-action pin-action-like">
+                <button type="button" class="btn btn-default js-moment-like"
+                        data-like-url="{{ path('api_moments_like', {'moment_id': moment.id}) }}"
+                        data-unlike-url="{{ path('api_moments_unlike', {'moment_id': moment.id}) }}"
+                        data-is-like="{% if isLike %}true{% else %}false{% endif %}"
+                    >
+                    <em class="fa fa-heart{% if not isLike %}-o{% endif %}"></em>
+                </button>
+            </div>
+            <div class="pin-image-wrapper">
+                {% set image = null %}
+                {% if moment.images[0] is defined %}
+                    {% set image = moment.images[0] %}
+                {% endif %}
+
+                <a href="{{ image|replace({'origin': 'large'}) }}" title="{{ moment.name }}" class="view" rel="moment">
+                    <h4>{{ moment.name }}</h4>
+                    {% if image %}
+                        <img src="{{ image|replace({'origin': 'small'}) }}" alt="{{ moment.name }}" />
+                    {% else %}
+                        <img />
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+
+        <div class="pin-meta">
+            <p class="pin-description">{{ moment.name }}</p>
+            <div class="pin-social-meta">
+                <span class="comments">
+                    <em class="fa fa-comment"></em>
+                    <em class="pin-social-meta-count pin-comment-count">{{ moment.comments|length }}</em>
+                </span>
+                <span class="likes">
+                    <em class="fa fa-heart"></em>
+                    <em class="pin-social-meta-count pin-like-count">{{ moment.likes|length }}</em>
+                </span>
+                {% if moment.distance > 0 %}
+                    <span>
+                        <em class="fa fa-map-marker"></em>
+                        <em class="pin-social-meta-count pin-distance-number">{{ moment.distance|number_format(2, '.', '') }} {% if app.user.distanceBy == constant('App\\Entity\\User::DISTANCEBY_MILES') %}mil{% else %}km{% endif %}</em>
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="pin-credits">
+            <a href="{{ path('profile', {'username': moment.username}) }}">
+                {% if moment.photo %}
+                    <img class="credit-img" src="{{ moment.photo|replace({'origin': 'mini'}) }}" alt="{{ moment.username }}" />
+                {% else %}
+                    <div class="credit-img gender {% if moment.gender %}{{ moment.gender|lower }}{% endif %}"></div>
+                {% endif %}
+                <div class="credit-name">{{ moment.username }}</div>
+                <div class="credit-extra">{{ moment.date_created.date[:10] }}</div>
+            </a>
+        </div>
+
+        <div class="pin-comment-list">
+            <ul>
+                {% for comment in moment.comments %}
+                    {% include 'partials/moment_comment.html.twig' with {'comment': comment, 'index': loop.index0} %}
+                {% endfor %}
+            </ul>
+            {% if moment.comments|length > 3 %}
+                <a class="showall js-pin-comments-showall" href="#"> Show <span class="count">{{ moment.comments|length-3 }}</span> more comments... </a>
+            {% endif %}
+        </div>
+
+        <div class="pin-new-comment-item clearfix">
+            <div class="commenter-thumb">
+                <a href="{{ path('profile', {'username': app.user.username}) }}">
+                    <img src="{{ s3url(app.user.photo, 'mini', true) }}" class="credit-img {% if not app.user.photo %}gender {{ app.user.gender|lower }}{% endif %}" alt="{{ app.user.username }}" />
+                </a>
+            </div>
+            <div class="commenter-comment">
+                <form action="{{ path('api_moments_add_comment') }}" class="js-form-moment-comments">
+                    <input type="hidden" name="moment_id" value="{{ moment.id }}" />
+                    <input type="hidden" name="username" value="{{ moment.username }}" />
+                    <div class="form-group">
+                        <textarea name="comment" class="form-control" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary">Comment</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{#{% endapply %}#}

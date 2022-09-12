@@ -1,0 +1,46 @@
+{
+  "entrypoints": {
+    "app": {
+      "js": [
+        "/build/runtime.js",
+        "/build/vendors~admin~app~login~search.js",
+        "/build/vendors~admin~app~search.js",
+        "/build/vendors~app~search.js",
+        "/build/vendors~app.js",
+        "/build/app.js"
+      ],
+      "css": [
+        "/build/app.css"
+      ]
+    },
+    "login": {
+      "js": [
+        "/build/runtime.js",
+        "/build/vendors~admin~app~login~search.js",
+        "/build/login.js"
+      ]
+    },
+    "admin": {
+      "js": [
+        "/build/runtime.js",
+        "/build/vendors~admin~app~login~search.js",
+        "/build/vendors~admin~app~search.js",
+        "/build/vendors~admin.js",
+        "/build/admin.js"
+      ],
+      "css": [
+        "/build/admin.css"
+      ]
+    },
+    "search": {
+      "js": [
+        "/build/runtime.js",
+        "/build/vendors~admin~app~login~search.js",
+        "/build/vendors~admin~app~search.js",
+        "/build/vendors~app~search.js",
+        "/build/vendors~search.js",
+        "/build/search.js"
+      ]
+    }
+  }
+}

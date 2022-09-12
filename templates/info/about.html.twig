@@ -1,0 +1,142 @@
+{% extends 'layout.html.twig' %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-9 col-md-offset-2 text-center">
+                <p class="lead">Find new people around your location, chat with them, and share your interest</p>
+
+                <video controls>
+                    <source src="{{ asset('static/video/intro.mp4') }}" type="video/mp4">
+                    <source src="{{ asset('static/video/intro.webm') }}" type="video/webm">
+                    <source src="{{ asset('static/video/intro.ogg') }}" type="video/ogg">
+                    I'm sorry; your browser doesn't support HTML5 video in WebM with VP8 or MP4 with H.264.
+                </video>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-9 col-md-offset-2">
+                <h2>Purpose</h2>
+                <p>At first glance, ChatApp seems to be just like every other chat app. But let me assure you, it's not!</p>
+                <p>The ChatApp team has put together the next big social chat app, and we plan on changing the way people typically meet and communicate with new people.</p>
+                <p>Use ChatApp to send messages, emoticons, audio, and images. See what your contacts are doing with Moments. Use the Radar to meet new people and find new clubs to join.</p>
+
+                <h2>Product</h2>
+                <p>Our growing team of engineers and designers have worked hard to create one of the most exciting chat apps today.</p>
+                <p>Here are some of the features:</p>
+                <ul>
+                    <li><strong>Radar</strong> - Find new people and clubs around you.</li>
+                    <li><strong>Moments</strong> - See moments posted by people nearby. Share your own moments. Share your own moments with others. Upload your moments to Facebook, Twitter, and Tumblr.</li>
+                    <li><strong>Meet</strong> - Say hi to people on the radar and make new connections.</li>
+                    <li><strong>Chat</strong> - Chat with friends and new people. Share audio, emoticons, and pictures with each other.</li>
+                </ul>
+                <p>People have compared our chat features with WeChat and Line, our radar location features with Meetup, and our photo sharing with Instagram.</p>
+                <p>Try ChatApp now! Be friendly on ChatApp.</p>
+
+                <ul class="list-inline text-center">
+                    <li><a class="download-btn applestore" href="https://itunes.apple.com/us/app/chatapp-meet-share-socialize/id767196673?mt=8" target="_blank" title="App Store"></a></li>
+                    <li><a class="download-btn googleplay" href="https://play.google.com/store/apps/details?id=com.guiang.chatapp&hl=en" target="_blank" title="Google Play"></a></li>
+                    {# <li><a class="download-btn androidmarket" href="http://www.amazon.com/Guiang-Inc-ChatApp/dp/B00H1O4UCW/ref=sr_1_2?ie=UTF8&qid=1387580253&sr=8-2&keywords=chatapp" target="_blank" title="Android Market"></a></li> #}
+                </ul>
+
+                <h2>Who We Are</h2>
+                <p>We're a small but growing company of normal-ish people who just like developing cool applications. Feel free to reach out to any and all of us — we're pretty friendly.</p>
+            </div>
+        </div>
+
+        <div class="row team">
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="photo" style="background-image:url({{ asset('static/images/team/Arnel-Guiang.jpg') }});"></div>
+                <div class="card">
+                    <strong>Arnel Guiang</strong>
+                    Founder & CEO
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="photo" style="background-image:url({{ asset('static/images/team/Michael-Arieli.jpg') }});"></div>
+                <div class="card">
+                    <strong>Michael Hagai Arieli</strong>
+                    Co-Founder & CTO
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="photo" style="background-image:url({{ asset('static/images/team/Christopher-Vidad.jpg') }});"></div>
+                <div class="card">
+                    <strong>Chris Vidad</strong>
+                    Android Mobile Developer
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="photo" style="background-image:url({{ asset('static/images/team/Jing-MeiLong.jpg') }});"></div>
+                <div class="card">
+                    <strong>Jing MeiLong</strong>
+                    iOS & Android Mobile Developer
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="photo"></div>
+                <div class="card">
+                    <strong>Yang Wang</strong>
+                    iOS Mobile Developer
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="photo"></div>
+                <div class="card">
+                    <strong>Jeff Ko</strong>
+                    Backend Developer
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="photo"></div>
+                <div class="card">
+                    <strong>Kristin Mihara</strong>
+                    Marketing
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="photo" style="background-image:url({{ asset('static/images/team/James-Kahng.jpg') }});"></div>
+                <div class="card">
+                    <strong>James Kahng</strong>
+                    Business & QA
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="photo"></div>
+                <div class="card">
+                    <strong>Alexa Dye</strong>
+                    Product & QA
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="photo" style="background-image:url({{ asset('static/images/team/Jorge-Magana.jpg') }});"></div>
+                <div class="card">
+                    <strong>Jorge Magana</strong>
+                    Designer
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="photo" style="background-image:url({{ asset('static/images/team/Hardeep.jpg') }});"></div>
+                <div class="card">
+                    <strong>Hardeep</strong>
+                    Programmer
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="photo" style="background-image:url({{ asset('static/images/team/Neeraj-Rathi.jpg') }});"></div>
+                <div class="card">
+                    <strong>Neeraj Rathi</strong>
+                    Programmer
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 col-xs-12">
+                <div class="photo" style="background-image:url({{ asset('static/images/team/Tran-Tho.jpg') }});"></div>
+                <div class="card">
+                    <strong>Tran T. Tho</strong>
+                    Quality Assurance
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

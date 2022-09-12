@@ -1,0 +1,24 @@
+@media (max-width:767px) {
+	.studio_right{
+		display:none;
+	}
+	.layout_manager{
+		display:flex;
+		flex-direction:row;
+		width: 1000px;
+    	overflow-x: scroll;
+	}
+	.layout_control_aside{
+		display:flex;
+	}
+	.studio {
+	    flex: 1 1 0%;
+	    display: block;
+	    position: relative;
+	    overflow: hidden;
+	    background: #333c48;
+	}
+	.studio_cardRow{
+		display:none;
+	}
+}

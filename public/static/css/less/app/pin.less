@@ -1,0 +1,323 @@
+.pin {
+    margin: 14px 7px 0 0;
+    font-size: 11px;
+}
+
+.pin .pin-wrapper {
+    background: #fff;
+    border-radius: 3px;
+    box-shadow: 0 1px 1px 0 rgba(0,0,0,0.18);
+    overflow: hidden;
+    width: 236px;
+}
+
+.pin .pin-wrapper .pin-image-action-button-wrapper {
+    height: 100%;
+    position: relative;
+    width: 100%;
+}
+
+.pin .pin-wrapper .pin-image-action-button-wrapper .pin-action {
+    -webkit-transition: opacity 0.2s linear;
+    transition: opacity 0.2s linear;
+    opacity: 0;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+    position: absolute;
+    top: 8px;
+    z-index: 101;
+}
+
+.pin .pin-wrapper .pin-image-action-button-wrapper:hover .pin-action {
+    opacity: 1;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+}
+
+.pin .pin-wrapper .pin-action.pin-action-delete {
+    left: 8px;
+}
+
+.pin .pin-wrapper .pin-action.pin-action-like {
+    right: 8px;
+}
+
+.pin .pin-wrapper .pin-image-wrapper {
+    cursor: pointer;
+}
+
+.pin .pin-wrapper .pin-image-wrapper:hover a:after {
+    border-bottom-color: rgba(0,0,0,0.08);
+}
+
+.pin .pin-wrapper .pin-image-wrapper:active a:after {
+    border-bottom-color: rgba(0,0,0,0.12);
+}
+
+.pin .pin-wrapper .pin-image-wrapper {
+    position: relative;
+    z-index: 1;
+}
+
+.pin .pin-wrapper .pin-image-wrapper a {
+    border-radius: 3px 3px 0 0;
+    background: #eee;
+    display: block;
+    position: relative;
+    cursor: pointer;
+    cursor: -webkit-zoom-in;
+    cursor: zoom-in;
+}
+
+.pin .pin-wrapper .pin-image-wrapper a:after {
+    bottom: 0;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    content: "";
+    height: 1px;
+    left: 0;
+    margin-top: -1px;
+    position: absolute;
+    right: 0;
+    z-index: 10;
+}
+
+.pin .pin-wrapper .pin-image-wrapper h4 {
+    white-space: nowrap;
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    opacity: 0.82;
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=82)";
+    bottom: 0;
+    color: #f7f7f7;
+    left: 0;
+    font-size: 12px;
+    margin-top: -6px;
+    padding: 0 14px;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    text-align: center;
+    text-shadow: 0 -1px rgba(0,0,0,0.17);
+    z-index: 4;
+}
+
+.pin .pin-wrapper .pin-image-wrapper img {
+    display: block;
+    margin: 0 auto;
+    position: relative;
+    z-index: 5;
+    -webkit-transition: opacity 0.4s;
+    transition: opacity 0.4s;
+    border-radius: 3px 3px 0 0;
+    min-height: 146px;
+    width: 100%;
+}
+
+.mobile .pin .pin-wrapper .pin-image-wrapper img:hover {
+    cursor: pointer;
+}
+
+.pin .pin-wrapper .pin-meta {
+    padding: 6px 14px 7px;
+}
+
+.pin .pin-wrapper .pin-meta .pin-description,.pin .pin-wrapper .pin-meta .pin-social-meta {
+    margin: 5px 0;
+}
+
+.pin .pin-wrapper .pin-meta .pin-description {
+    padding: 0;
+    color: #333;
+    font-size: 13px;
+    line-height: 17px;
+    word-wrap: break-word;
+}
+
+.pin .pin-wrapper .pin-social-meta {
+    font-weight: bold;
+    padding: 0;
+}
+
+.pin .pin-wrapper .pin-social-meta:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.pin .pin-wrapper .pin-social-meta a,.pin .pin-wrapper .pin-social-meta span {
+    display: inline-block;
+    vertical-align: middle;
+    zoom: 1;
+    *display: inline;
+    *vertical-align: auto;
+    color: #a7a7a7;
+    padding-right: 7px;
+}
+
+.pin .pin-wrapper .pin-social-meta a .fa,.pin .pin-wrapper .pin-social-meta span .fa {
+    font-size: 11px;
+}
+
+.pin.pin-wrapper .pin-social-meta .pin-social-meta-count {
+    color: #999;
+    font-style: normal;
+    font-weight: normal;
+    position: relative;
+    top: 1px;
+}
+
+.pin .pin-wrapper .pin-credits {
+    font-weight: bold;
+    border-top: 1px solid #e7e7e7;
+    color: #777;
+}
+
+.pin .pin-wrapper .pin-credits a {
+    overflow: hidden;
+    border-radius: 0 0 3px 3px;
+    display: block;
+    line-height: 14px;
+    padding: 5px 12px;
+    text-align: left;
+}
+
+.pin .pin-wrapper .pin-credits a:hover {
+    background: #f1f1f1;
+}
+
+.pin .pin-wrapper .pin-credits a .credit-img {
+    float: left;
+    border-radius: 50%;
+    height: 30px;
+    margin-right: 10px;
+    width: 30px;
+}
+
+.pin .pin-wrapper .pin-credits a .credit-name {
+    white-space: nowrap;
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    color: #717171;
+    display: block;
+}
+
+.pin .pin-wrapper .pin-credits a .credit-extra {
+    float: left;
+    white-space: nowrap;
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    color: #b7b7b7;
+    padding-right: 5px;
+    margin-right: 5px;
+    border-right: 1px solid #ccc;
+}
+
+.pin .pin-wrapper .pin-credits a .credit-extra:last-child {
+    border-right: 0;
+}
+
+.pin .pin-wrapper .pin-comment-list {
+    border-top: 1px solid #e3e3e3;
+}
+
+.pin .pin-wrapper .pin-comment-list ul {
+    margin-top: 10px;
+    padding: 0;
+}
+
+.pin .pin-wrapper .pin-comment-list ul li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pin .pin-wrapper .pin-comment-list .pin-comment:last-child {
+    padding-bottom: 0;
+}
+
+.pin .pin-wrapper .pin-comment-list .pin-comment {
+    position: relative;
+    word-wrap: break-word;
+    margin: 5px 12px;
+}
+
+.pin .pin-wrapper .pin-comment-list .pin-comment .commenter-thumb a {
+    margin-right: 6px;
+    position: relative;
+    width: 30px;
+    float: left;
+}
+
+.pin .pin-wrapper .pin-comment-list .pin-comment .commenter-thumb img {
+    border-radius: 50%;
+    height: 30px;
+    width: 30px;
+}
+
+.pin .pin-wrapper .pin-comment-list .pin-comment .commenter-text {
+    margin-left: 36px;
+    font-size: 11px;
+    line-height: 15px;
+    width: 172px;
+}
+
+.pin .pin-wrapper .pin-comment-list .pin-comment .commenter-text .name {
+    line-height: 11px;
+    color: #717171;
+    font-weight: bold;
+}
+
+.pin .pin-wrapper .pin-comment-list .pin-comment .commenter-text .content {
+    margin: 0 0 5px;
+}
+
+.pin .pin-wrapper .pin-comment-list .pin-comment .commenter-text .content a {
+    color: #171717;
+}
+
+.pin-comment-list .showall {
+    text-align: center;
+    display: block;
+    margin: 0 0 9px;
+    padding: 0 15px;
+    color: #717171;
+    font-weight: bold;
+}
+
+.pin .pin-new-comment-item:after {
+    clear: both;
+    content: "";
+    display: table;
+}
+
+.pin .pin-new-comment-item {
+    border-radius: 0 0 6px 6px;
+    padding: 0 14px 7px;
+    position: relative;
+}
+
+.pin .pin-new-comment-item .commenter-thumb a {
+    margin-right: 6px;
+    position: relative;
+    width: 30px;
+    float: left;
+}
+
+.pin .pin-new-comment-item .commenter-thumb img {
+    border-radius: 50%;
+    height: 30px;
+    width: 30px;
+}
+
+.pin .pin-new-comment-item .commenter-comment {
+    margin-left: 36px;
+    font-size: 11px;
+    line-height: 15px;
+}
+
+.pin .pin-new-comment-item .commenter-comment form {
+    display: inline-block;
+    margin-bottom: 5px;
+    width: 100%;
+}

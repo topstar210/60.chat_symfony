@@ -1,0 +1,126 @@
+<script type="text/template" id="messages-name-template">
+{#{% apply spaceless %}#}
+    <li id="<%=chat_id%>" data-participants="<%=participants.join(',')%>">
+        <a href="#" class="messages-name">
+            <span class="messages-notification"><% if (unread > 0) { %><%=unread%><% } %></span>
+            <% if (!_.isUndefined(photo) && !_.isNull(photo)) { %>
+                <img class="messages-avatar" src="<%=photo.replace("/origin/", "/mini/")%>" alt="<%=username%>" />
+            <% } else { %>
+                <img class="messages-avatar gender" src="{{ asset('static/images/1x1px.png') }}" />
+            <% } %>
+            <% if (participants.length > 1) { %>
+                <span class="messages-group">G</span>
+                <span class="name css-truncate css-truncate-target"><%=participants.join(', ')%><% if (participants.join(', ').length > 50) { %>...<% } %></span>
+            <% } else { %>
+                <span class="name"><%=username%></span>
+                <span class="status <% if (is_online) { %>online<% } else { %>offline<% } %> css-truncate css-truncate-target"><i class="fa fa-circle"></i> <%=last_message.message%></span>
+            <% } %>
+        </a>
+    </li>
+{#{% endapply %}#}
+</script>
+
+<script type="text/template" id="messages-message-template">
+{#{% apply spaceless %}#}
+    <li class="messages-<% if (is_me) { %>me<% } %>">
+        <div class="avatar">
+            <a href="{{ path('profile', {'username': 'FROM_USERNAME'}) }}" title="<%=from_username%>">
+                <% if (!_.isNull(from_photo) && from_photo.length>0) { %>
+                    <img src="<%=from_photo.replace("/origin/", "/mini/")%>" alt="<%=from_username%>" />
+                <% } else { %>
+                    <img class="gender <% if (from_gender) { %><%=from_gender.toLowerCase()%><% } %>" src="{{ asset('static/images/1x1px.png') }}" />
+                <% } %>
+            </a>
+        </div>
+        <div class="message">
+            <p class="message-name">
+                <a href="{{ path('profile', {'username': 'FROM_USERNAME'}) }}" title="<%=from_username%>"><%=from_username%></a>
+                <span class="message-time"><% if (is_now) { %>now<% } else { %><%=date_created.date.substring(0, 10)%><% } %></span>
+            </p>
+            <p class="message-txt">
+                <%=message%>
+                <% _.each(files, function(file) { %>
+                    <% if (file) { %>
+                        <% var extension = file.substring(file.lastIndexOf('.') + 1).toLowerCase() %>
+                        <% if (_.indexOf(['jpg', 'jpeg', 'bmp', 'gif', 'png'], extension) !== -1) { %>
+                            <img src="<%=file%>" style="width:100%" />
+                        <% } else if (_.indexOf(['mp3', 'mid', 'wav', 'm4a'], extension) !== -1) { %>
+                        <audio controls style="width:100%">
+                            <source src="<%=file%>" />
+                            Your browser does not support HTML5 video.
+                        </audio>
+                        <% } else if (_.indexOf(['mpeg', 'mp4', 'webm'], extension) !== -1) { %>
+                        <video style="width:100%" controls>
+                            <source src="<%=file%>" type="<%=Common.ext2Mime(extension)%>">
+                        </video>
+                        <% } %>
+                    <% } %>
+                <% }) %>
+            </p>
+        </div>
+    </li>
+{#{% endapply %}#}
+</script>
+
+<div class="messages-wrapper"
+    data-open-url="{{ path('api_messages_open_chats') }}"
+    data-limit = "20"
+    data-page = "1"
+    data-close-url="{{ path('api_messages_close_chat') }}"
+>
+    <div id="hideChatPanel"><a title="Close"><i class="fa fa-close"></i></a></div>
+    <div class="messages-list">
+        <form class="form-horizontal messages-search" role="form">
+            <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search for user...">
+                <button type="submit">
+                    <i class="fa fa-search"></i>
+                </button>
+            </div>
+        </form>
+
+        <ul class="messages-ui"></ul>
+        <div class="text-center">
+            <div id="chatListBoxLoading" style="display: none;"><span class="ajax-loader-inline"></span></div>
+            <a id="loadMoreChatPeople" style="display: none;">Load more...</a>
+        </div>
+    </div>
+    <div class="messages-box"
+        data-read-url="{{ path('api_messages_read') }}"
+        data-history-url="{{ path('api_messages_history') }}"
+        data-add-url="{{ path('api_messages_add') }}"
+        data-upload-file="{{ path('api_file_upload_file', {'token': app.user.token}) }}"
+    >
+        <a href="#" class="btn btn-xs btn-close">Back <i class="fa fa-chevron-right "></i></a>
+        <div id="selectedChatUser"></div>
+        <div id="chatMessageLoading"><span class="ajax-loader-inline"></span></div>
+        <ul class="messages-ui messages-messages"></ul>
+        <div class="messages-write">
+            <form action="#" class="form-horizontal" role="form">
+                <input type="hidden" name="chat_id" />
+                <input type="hidden" name="participants" />
+                <input type="hidden" name="my_name" value="{{ app.user.username }}" />
+                <input type="hidden" name="my_photo" value="{{ s3url(app.user.photo, 'mini', true) }}" />
+                <div class="form-group">
+                    <div id="message_error" style="display: none"></div>
+                    <div id="uploadImg" class="page-loader" style="display: none"></div>
+                    <div id="chatPreviewImage" style="display: none">
+                        <div class="img" id="chatPreviewContent">
+                            <img id="chatPreviewContent_src" src=""/>
+                        </div>
+                        <div><a class="pointer" id="removeChatImg" style="display: none"><i class="fa fa-trash"></i></a></div>
+                    </div>
+                    <textarea name="sendmsg" class="form-control elastic" rows="1"></textarea>
+                    <a role="button" id="btn-attach-photo">
+                        <i class="fa fa-photo"></i>
+                    </a>
+                    <input id="shareFileChat" type="hidden" name="file" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    require(['js/app/messages']);
+</script>

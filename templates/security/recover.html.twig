@@ -1,0 +1,30 @@
+{% extends 'layout.html.twig' %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+    <div class="login-model">
+        <div class="contents">
+            <form action="{{ path('recover') }}" class="login-form {% if error %}has-error{% endif %}" method="post">
+                <h1>Forgot ChatApp Password?</h1>
+
+                <div class="login-fields">
+                    <div class="input-group">
+                        <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                        <input type="text" name="username" class="form-control input-lg" placeholder="Username / Email / Phone Number" required="required" />
+                    </div>
+                </div>
+
+                <div class="login-error">{% if error %}{{ error }}{% endif %}</div>
+
+                <div class="login-footer">
+                    <div class="login-footer-buttons">
+                        <button type="submit" class="btn btn-success">Recover</button>
+                    </div>
+
+                    <p>&laquo; Back to <a href="{{ path('login') }}">Login</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

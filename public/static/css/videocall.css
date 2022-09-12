@@ -1,0 +1,244 @@
+.form-check-inline {
+    display: inline-block;
+}
+
+.text_red {
+    color: red !important;
+}
+
+#videos-container video {
+    width: 150px;
+    height: 120px;
+    object-fit: fill;
+    position: relative;
+    border-radius: 7px;
+    float: right;
+}
+
+#videos-second-container {
+    width: 100%;
+    height: 100%;
+}
+
+#videos-second-container video {
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    position: relative;
+    float: right;
+}
+
+#videos-remote-container video {
+    width: 150px;
+    height: 120px;
+    object-fit: fill;
+    position: relative;
+    border-radius: 7px;
+    float: right;
+}
+
+
+.box {
+    width: 300px;
+    margin: 0 20px auto;
+    background: #00bfb6;
+    padding: 20px;
+    text-align: left;
+    font-weight: 900;
+    color: #fff;
+    position: relative;
+}
+
+.sb1:before {
+    content: "";
+    width: 0px;
+    height: 0px;
+    position: absolute;
+    border-left: 10px solid #00bfb6;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #00bfb6;
+    border-bottom: 10px solid transparent;
+    right: -19px;
+    top: 6px;
+}
+
+.sb2:before {
+    content: "";
+    width: 0px;
+    height: 0px;
+    position: absolute;
+    border-left: 10px solid transparent;
+    border-right: 10px solid #00bfb6;
+    border-top: 10px solid #00bfb6;
+    border-bottom: 10px solid transparent;
+    left: -19px;
+    top: 6px;
+}
+
+.sb3:before {
+    content: "";
+    width: 0px;
+    height: 0px;
+    position: absolute;
+    border-left: 10px solid #00bfb6;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #00bfb6;
+    border-bottom: 10px solid transparent;
+    left: 19px;
+    bottom: -19px;
+}
+
+.sb4:before {
+    content: "";
+    width: 0px;
+    height: 0px;
+    position: absolute;
+    border-left: 10px solid transparent;
+    border-right: 10px solid #00bfb6;
+    border-top: 10px solid #00bfb6;
+    border-bottom: 10px solid transparent;
+    right: 19px;
+    bottom: -19px;
+}
+
+.avatar {
+    width: 100px;
+    height: 100px;
+    border: 1px solid #f1f1f1;
+    border-radius: 50%;
+    background-size: cover;
+    background-color: #f1f1f1;
+}
+
+.windowFix {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 999999;
+    opacity: 0.8;
+}
+
+.countdownWrap {
+    background: #1B924A;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    z-index: 9999999;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    margin-top: -25px;
+    margin-left: -25px;
+    box-shadow: 0 0 5px rgb(240, 102, 0);
+    opacity: 0;
+    animation-name: bounceIn;
+    animation-duration: 450ms;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+    font-size: 14em;
+    text-align: center;
+    color: #fff;
+}
+
+.countdownWrapActive {
+    width: 300px;
+    height: 300px;
+    margin-top: -150px;
+    margin-left: -150px;
+
+}
+
+.chatWindow {
+    width: 700px;
+    height: 392px;
+    position: absolute;
+    top: 150px;
+    left: 50%;
+    z-index: 99999999;
+    background: #fff;
+    margin-left: -350px;
+}
+
+.videoCounterWrap {
+    border-radius: 100%;
+    width: 50px;
+    height: 50px;
+    background: #fff;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    font-weight: 600;
+}
+
+.videoCounterWrapActive {
+    border-radius: 100%;
+    width: 90px;
+    height: 90px;
+    background: #ff0000;
+    color: #fff;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    font-weight: 600;
+    font-size: 3em;
+}
+
+#videos-container {
+    background: #f00;
+    border-radius: 7px;
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
+
+@media only screen and (max-width: 768px) {
+    .chatWindow {
+        width: 400px;
+        height: 392px;
+        position: absolute;
+        top: 150px;
+        left: 50%;
+        z-index: 99999999;
+        background: #fff;
+        margin-left: -200px;
+    }
+
+    #videos-container {
+        background: #f00;
+        border-radius: 7px;
+        position: absolute;
+        right: 10px;
+        bottom: -60px;
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3) translate3d(0, 0, 0);
+    }
+    50% {
+        opacity: 0.9;
+        transform: scale(1.1);
+    }
+    80% {
+        opacity: 1;
+        transform: scale(0.89);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translate3d(0, 0, 0);
+    }
+}

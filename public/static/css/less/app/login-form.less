@@ -1,0 +1,284 @@
+.login-model {
+    overflow: hidden;
+}
+
+.login-model .contents {
+    position: relative;
+    z-index: 682;
+    width: 100%;
+    max-width: 470px;
+    margin: 70px auto;
+    border-radius: 6px;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .45);
+}
+
+.register-model .contents {
+    max-width: 700px;
+}
+
+.login-form {
+    margin: 0 auto 0;
+    padding-top: 20px;
+}
+
+.login-form > h1 {
+    font-size: 23px;
+    overflow: hidden;
+    margin: 10px 40px 15px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    -ms-text-overflow: ellipsis;
+    color: #525252;
+}
+
+.login-form .social-buttons {
+    padding: 15px 10px;
+    border-radius: 6px 6px 0 0;
+}
+
+.login-form .social-buttons:after {
+    display: table;
+    clear: both;
+    content: '';
+}
+
+.login-form .login-fields {
+    margin-bottom: 10px;
+    padding: 15px;
+    border-top: 1px solid #dfdfdf;
+}
+
+.register-model .login-form .login-fields {
+    padding: 15px 0;
+}
+
+.login-form .login-fields .input-group {
+    margin-bottom: 15px;
+}
+
+.login-form .login-fields .birthday-fields select {
+    display: inline-block;
+    width: 30%;
+    margin-right: 3px;
+}
+
+.login-form .login-error {
+    margin: 0 0 14px 40px;
+    color: #cb2027;
+}
+
+.login-form.has-error {
+    border-color: #cb2027 !important;
+    box-shadow: 0 0 6px rgba(255, 0, 0, .35);
+}
+
+.login-form .vertical.divider {
+    right: -10px;
+    left: auto;
+    display: block;
+}
+
+.login-form .login-footer {
+    clear: both;
+    padding: 10px 20px;
+    border-top: 1px solid #dadada;
+    border-radius: 0 0 6px 6px;
+    background: #f0f0f0;
+}
+
+.login-form .login-footer:after {
+    display: table;
+    clear: both;
+    content: '';
+}
+
+.login-form .login-footer .login-footer-buttons {
+    float: right;
+}
+
+.login-form .login-footer a {
+    font-weight: bold;
+    display: inline-block;
+    margin-bottom: 11px;
+    text-decoration: none;
+    color: #333;
+}
+
+.login-form a.forgot-password {
+    color: #f00;
+}
+
+.register-model .form-terms-of-service {
+    font-size: 11px;
+    line-height: 150%;
+    position: absolute;
+    right: 0;
+    bottom: -50px;
+    left: 0;
+    display: block;
+    width: 272px;
+    margin: 0 auto;
+    text-align: center;
+    color: #333;
+    text-shadow: 0 1px rgba(0, 0, 0, .18);
+}
+
+@media (max-width:879px) {
+    .login-model .contents {
+        box-shadow: none;
+    }
+
+    .login-form .vertical.divider {
+        display: none;
+    }
+
+    .login-form .login-footer {
+        background: none;
+    }
+
+    .register-model .form-terms-of-service {
+        bottom: -30px;
+    }
+}
+
+.btn.btn-facebook-connect,
+.btn.btn-gplus-connect,
+.btn.btn-twitter-connect {
+    position: relative;
+    height: 42px;
+    padding: 10px 10px 0 50px;
+}
+
+.btn.btn-block.btn-facebook-connect,
+.btn.btn-block.btn-gplus-connect,
+.btn.btn-block.btn-twitter-connect {
+    padding-left: 0;
+}
+
+.btn.btn-facebook-connect.disabled,
+.btn.btn-gplus-connect.disabled,
+.btn.btn-twitter-connect.disabled {
+    opacity: .3;
+}
+
+.btn.btn-facebook-connect em,
+.btn.btn-gplus-connect em,
+.btn.btn-twitter-connect em {
+    font-size: 24px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 41px;
+    height: 39px;
+    padding: 6px 12px;
+    color: #fff;
+    box-shadow: 1px 0 0 rgba(0, 0, 0, .05);
+}
+
+.btn.btn-facebook-connect span,
+.btn.btn-gplus-connect span,
+.btn.btn-twitter-connect span {
+    color: #fff;
+    text-shadow: 0 -1px rgba(0, 0, 0, .25);
+}
+
+.btn.btn-facebook-connect {
+    color: #444;
+    border: 1px solid #293f69;
+    border-top-color: #314a7b;
+    background: -webkit-linear-gradient(#5678bc, #314a7b);
+    background: linear-gradient(#5678bc, #314a7b);
+    background-color: #43609b;
+    text-shadow: 0 1px #fff;
+}
+
+.btn.btn-facebook-connect:hover,
+.btn.btn-facebook-connect:focus,
+.btn.btn-facebook-connect:active,
+.btn.btn-facebook-connect.active {
+    border: 1px solid #1b2945;
+    border-top-color: #293f69;
+}
+
+.btn.btn-facebook-connect:active,
+.btn.btn-facebook-connect.active {
+    background: -webkit-linear-gradient(#466ab2, #314a7b);
+    background: linear-gradient(#466ab2, #314a7b);
+    background-color: #3b5996;
+    box-shadow: inset 0 2px 3px rgba(0, 0, 0, .2);
+}
+
+.btn.btn-facebook-connect em {
+    width: 42px;
+    height: 42px;
+    background-color: #5a78b9;
+    background-color: rgba(255, 255, 255, .08);
+}
+
+.btn.btn-gplus-connect {
+    color: #444;
+    border: 1px solid #e34242;
+    border-top-color: #e65858;
+    background: -webkit-linear-gradient(#f87474, #e65858);
+    background: linear-gradient(#f87474, #e65858);
+    background-color: #ef6666;
+    text-shadow: 0 1px #fff;
+}
+
+.btn.btn-gplus-connect:hover,
+.btn.btn-gplus-connect:focus,
+.btn.btn-gplus-connect:active,
+.btn.btn-gplus-connect.active {
+    border: 1px solid #d21f1f;
+    border-top-color: #e34242;
+}
+
+.btn.btn-gplus-connect:active,
+.btn.btn-gplus-connect.active {
+    background: -webkit-linear-gradient(#f75c5c, #e65858);
+    background: linear-gradient(#f75c5c, #e65858);
+    background-color: #ee5959;
+    box-shadow: inset 0 2px 3px rgba(0, 0, 0, .2);
+}
+
+.btn.btn-gplus-connect em {
+    width: 41px;
+    height: 41px;
+    background-color: #e65858;
+    background-color: rgba(255, 255, 255, .07);
+}
+
+.btn.btn-twitter-connect {
+    color: #444;
+    border: 1px solid #1c80a8;
+    border-top-color: #2091bd;
+    background: -webkit-linear-gradient(#5fbee4, #2091bd);
+    background: linear-gradient(#5fbee4, #2091bd);
+    background-color: #3fa7d0;
+    text-shadow: 0 1px #fff;
+}
+
+.btn.btn-twitter-connect:hover,
+.btn.btn-twitter-connect:focus,
+.btn.btn-twitter-connect:active,
+.btn.btn-twitter-connect.active {
+    border: 1px solid #155f7c;
+    border-top-color: #1c80a8;
+}
+
+.btn.btn-twitter-connect:active,
+.btn.btn-twitter-connect.active {
+    background: -webkit-linear-gradient(#49b6e1, #2091bd);
+    background: linear-gradient(#49b6e1, #2091bd);
+    background-color: #34a3cf;
+    box-shadow: inset 0 2px 3px rgba(0, 0, 0, .2);
+}
+
+.btn.btn-twitter-connect em {
+    width: 41px;
+    height: 41px;
+    background-color: #49b6e1;
+    background-color: rgba(255, 255, 255, .08);
+}

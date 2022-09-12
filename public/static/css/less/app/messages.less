@@ -1,0 +1,381 @@
+.messages-wrapper {
+    display: none;
+    width: 250px;
+    height: 100%;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    top: 50px;
+    z-index: 104;
+    overflow: scroll;
+    border-left: 1px solid #e7e7e2;
+    background: #f3f5f6;
+}
+
+.messages-list {
+    position: relative;
+    display: block;
+    -webkit-transition: opacity;
+    transition: opacity;
+    -webkit-transition-duration: 0.4s;
+    transition-duration: 0.4s;
+}
+
+.messages-list.hide-it {
+    display: none;
+}
+
+.messages-list .messages-search {
+    position: relative;
+    padding: 0 25px;
+}
+
+.messages-list .messages-search .form-group {
+    margin: 0 -25px;
+}
+
+.messages-list .messages-search input {
+    border: none;
+    border-bottom: 1px solid #e3e3e3;
+    background: none;
+    padding: 16px 20px 17px 40px;
+    height: auto;
+    width: 100%;
+    box-shadow: none;
+    border-radius: 0;
+    color: #030303;
+}
+
+.messages-list .messages-search input:focus,
+.messages-list .messages-search input:hover {
+    box-shadow: none;
+}
+
+.messages-list .messages-search button {
+    position: absolute;
+    left: 15px;
+    top: 15px;
+    border: none;
+    background: none;
+}
+
+.messages-list .messages-search button i {
+    color: #acb1b8;
+}
+
+.messages-list .messages-ui {
+    padding-left: 0px;
+    margin-bottom: 35px;
+    margin-top: 8px;
+    list-style: none;
+}
+
+.messages-list .messages-ui.bsAccordion li:last-child ul {
+    margin-bottom: 20px;
+}
+
+.messages-list .messages-ui li {
+    display: block;
+    position: relative;
+}
+
+.messages-list .messages-ui li a {
+    padding: 7px 15px;
+    color: #030303;
+    font-weight: bold;
+    width: 100%;
+    display: inline-block;
+    position: relative;
+}
+
+.messages-list .messages-ui li a .messages-avatar {
+    float: left;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    margin-right: 5px;
+    border: 1px solid transparent;
+    -webkit-transition: border;
+    transition: border;
+    -webkit-transition-duration: 0.4s;
+    transition-duration: 0.4s;
+}
+
+.messages-list .messages-ui li a.messages-name {
+    color: #292929;
+    font-weight: normal;
+    font-size: 13px;
+    padding: 0;
+    text-decoration: none;
+    -webkit-transition: color;
+    transition: color;
+    -webkit-transition-duration: 0.4s;
+    transition-duration: 0.4s;
+}
+
+.messages-list .messages-ui {
+    padding-left: 0;
+}
+
+.messages-list .messages-ui li {
+    padding: 3px 10px;
+    margin: 0 5px;
+    -webkit-transition: background;
+    transition: background;
+    -webkit-transition-duration: 0.4s;
+    transition-duration: 0.4s;
+    border-radius: 2px;
+}
+
+.messages-list .messages-ui li:hover {
+    background: #dde4e6;
+}
+
+.messages-list .messages-ui li .messages-notification,
+.messages-list .messages-ui li .messages-group {
+    position: absolute;
+    border-radius: 50%;
+    background: #ef4836;
+    font-size: 10px;
+    font-weight: bold;
+    color: #fff;
+    border: 2px solid #ecf0f1;
+    top: -8px;
+    left: 25px;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    padding-top: 1px;
+    line-height: 14px;
+}
+
+.messages-list .messages-ui li .messages-group {
+    top: 28px;
+    padding-top: 2px;
+    background: #3746f0;
+}
+
+.messages-list .messages-ui li .messages-notification:empty {
+    display: none;
+}
+
+.messages-list .messages-ui li .name {
+    display: block;
+    font-weight: bold;
+    margin-top: 5px;
+    width: 100%;
+}
+
+.messages-list .messages-ui li .status {
+    display: block;
+    width: 100%;
+    font-size: 10px;
+    color: #999;
+}
+
+.messages-list .messages-ui li .status i {
+    font-size: 10px;
+    margin-right: 5px;
+}
+
+.messages-list .messages-ui li .status.busy i {
+    color: #ef4836;
+}
+
+.messages-list .messages-ui li .status.online i {
+    color: #3fc380;
+}
+
+.messages-list .messages-ui li .status.offline i {
+    color: #95a5a6;
+}
+
+.messages-box {
+    position: relative;
+    display: none;
+    opacity: 0;
+}
+
+.messages-box .btn-close {
+    position: fixed;
+    top: 50px;
+    background-color: #eeeeee;
+    border-bottom: 1px solid #e3e3e3;
+    border-radius: 0;
+    padding: 14px 16px;
+    color: #95a5a6;
+    font-size: 16px;
+    text-align: left;
+    width: 100%;
+    z-index: 2;
+}
+
+.messages-box.box-show {
+    display: block;
+    opacity: 1;
+}
+
+.messages-box .messages-messages {
+    margin: 65px 15px 40px;
+    padding: 0 0 100px;
+    list-style: none;
+}
+
+.messages-box .messages-messages li {
+    margin-bottom: 10px;
+}
+
+.messages-box .messages-messages li .avatar {
+    float: left;
+}
+
+.messages-box .messages-messages li .avatar img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    margin-right: 5px;
+    border: 1px solid transparent;
+    -webkit-transition: border;
+    transition: border;
+    -webkit-transition-duration: 0.4s;
+    transition-duration: 0.4s;
+}
+
+.messages-box .messages-messages li .message {
+    margin-left: 55px;
+    border-radius: 4px;
+    background-color: #ffffff;
+    padding: 5px 10px;
+    border: 1px solid #ffffff;
+    position: relative;
+}
+
+.messages-box .messages-messages li .message:after,
+.messages-box .messages-messages li .message:before {
+    right: 100%;
+    top: 20px;
+    border: solid transparent;
+    content: "";
+    height: 0;
+    width: 0;
+    position: absolute;
+    pointer-events: none;
+}
+
+.messages-box .messages-messages li .message:after {
+    border-color: rgba(136, 183, 213, 0);
+    border-right-color: #ffffff;
+    border-width: 8px;
+    margin-top: -8px;
+}
+
+.messages-box .messages-messages li .message:before {
+    border-color: rgba(194, 225, 245, 0);
+    border-right-color: #ffffff;
+    border-width: 9px;
+    margin-top: -9px;
+}
+
+.messages-box .messages-messages li .message .message-name {
+    color: #95a5a6;
+    margin-bottom: 2px;
+}
+
+.messages-box .messages-messages li .message .message-name .message-time {
+    font-size: 75%;
+    float: right;
+    padding: 2px 0;
+    font-style: italic;
+}
+
+.messages-box .messages-messages li .message .message-txt {
+    font-size: 13px;
+    line-height: 18px;
+    margin-bottom: 0;
+}
+
+.messages-box .messages-messages li.messages-me .avatar {
+    float: right;
+}
+
+.messages-box .messages-messages li.messages-me .avatar img {
+    margin-right: 0;
+    margin-left: 5px;
+}
+
+.messages-box .messages-messages li.messages-me .message {
+    margin-right: 55px;
+    margin-left: 0;
+}
+
+.messages-box .messages-messages li.messages-me .message:after,
+.messages-box .messages-messages li.messages-me .message:before {
+    left: 100%;
+}
+
+.messages-box .messages-messages li.messages-me .message:after {
+    border-left-color: #ffffff;
+    border-right-color: transparent;
+}
+
+.messages-box .messages-messages li.messages-me .message:before {
+    border-left-color: #ffffff;
+    border-right-color: transparent;
+}
+
+.messages-box .messages-messages li:last-child {
+    margin-bottom: 0;
+}
+
+.messages-box .messages-write {
+    padding: 0;
+    position: fixed;
+    width: 220px;
+    bottom: 0;
+    right: 15px;
+}
+
+.messages-box .messages-write form {
+    position: relative;
+}
+
+.messages-box .messages-write form .form-group {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.messages-box .messages-write form textarea {
+    resize: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 6px 36px 6px 12px;
+    color: #030303;
+}
+
+.messages-box .messages-write form #btn-attach-photo {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    left: auto;
+    width: 20px;
+}
+
+.messages-box .messages-write form input[type="file"] {
+    opacity: 0;
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 0;
+    right: 2px;
+}
+
+@media only screen and (max-width:445px) {
+    .messages-wrapper {
+        width: 100%;
+    }
+
+    .messages-box .messages-write {
+        width: 100%;
+    }
+}

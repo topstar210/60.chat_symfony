@@ -1,0 +1,362 @@
+{% extends 'layout.html.twig' %}
+
+{% block scripts_after %}
+    <script type="text/javascript">
+        require(['js/app/settings']);
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="container user-settings">
+        {% if error is defined and error %}
+
+            <script type="text/javascript">
+                require(['jquery', 'igrowl'],
+                    function ($) {
+                        $.iGrowl.prototype.defaults.placement.x = 'right';
+                        $.iGrowl.prototype.defaults.placement.y = 'bottom';
+                        $.iGrowl({
+                            type: 'error-sat',
+                            message: "{{ error|default('An error occurred on the server.') }}",
+                            icon: 'fa-times-circle-o',
+                            delay:5000
+                        })
+                    });
+            </script>
+        {% endif %}
+        {% if message is defined and message %}
+
+            <script type="text/javascript">
+                require(['jquery', 'igrowl'],
+                    function ($) {
+                        $.iGrowl.prototype.defaults.placement.x = 'right';
+                        $.iGrowl.prototype.defaults.placement.y = 'bottom';
+                        $.iGrowl({
+                            type: 'success-sat',
+                            message: "{{ message|default('Data has been updated successfully.') }}",
+                            icon: 'fa-check-circle-o',
+                            delay:3000
+                        })
+                    });
+            </script>
+        {% endif %}
+
+        <div class="row">
+            <div class="col-md-3">
+                <div class="toc affix">
+                    <ul>
+                        <li><a href="#account-basics">Account Basics</a></li>
+                        <li><a href="#profile">Profile</a></li>
+                        <li><a href="#extra">Extra</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <form id="frmSetting" class="{{ path('settings') }}" method="POST" enctype="multipart/form-data">
+                    <ul>
+                        <li id="account-basics" class="section-title"><h2>Account Basics</h2></li>
+                        <li>
+                            <h3><label for="profile_username">Username (ChatApp ID)</label></h3>
+                            <div class="form-group">
+                                <input type="text" name="profile[username]" id="profile_username" class="form-control" placeholder="Username" value="{{ app.user.username }}" disabled="disabled" />
+                            </div>
+                        </li>
+                        <li>
+                            <h3><label for="profile_email">Email  {% if not app.user.isVerifiedEmail %}<a href="#" data-url="{{ path('api_auth_resend_code') }}" class="js-verify-code">(verify)</a>{% endif %}</label></h3>
+                            <div class="form-group">
+                                <input type="email" name="profile[email]" id="profile_email" class="form-control" placeholder="Email" value="{{ app.user.email }}" />
+                            </div>
+                            {% if app.user.isVerifiedEmail %}
+                                <div class="form-group">
+                                    <input type="checkbox" name="profile[notify_via_email]" id="profile_notify_via_email" {% if app.user.notifyViaEmail %}checked="checked"{% endif %} /> notify
+                                </div>
+                            {% endif %}
+                        </li>
+                        <li>
+                            <h3><label for="profile_phone_number">Phone {% if not app.user.isVerifiedPhoneNumber %}<a href="#" data-url="{{ path('api_auth_resend_code') }}" class="js-verify-code">(verify)</a>{% endif %}</label></h3>
+                            <div class="form-group">
+                                <input type="phone" name="profile[phone_number]" id="profile_phone_number" class="form-control" placeholder="Phone number" value="{{ app.user.phoneNumber }}" />
+                            </div>
+                            {% if app.user.isVerifiedPhoneNumber %}
+                                <div class="form-group">
+                                    <input type="checkbox" name="profile[notify_via_sms]" id="profile_notify_via_sms" {% if app.user.notifyViaSms %}checked="checked"{% endif %} /> notify
+                                </div>
+                            {% endif %}
+                        </li>
+                       <li>
+                            <h3><label for="profile_password">Password</label></h3>
+                            <div class="form-group">
+                                <a href="#" class="text-danger js-password-change">Change your password...</a>
+
+                                <div class="password-fields js-password-fields" style="display:none">
+                                    <div class="input-group">
+                                        <span class="input-group-addon">Old password</span>
+                                        <input id="oldPasword" type="password" name="profile[password_old]" class="form-control" />
+                                    </div>
+
+                                    <div class="input-group" style="margin-top: 10px;">
+                                        <span class="input-group-addon">New password</span>
+                                        <input id="newPassword" type="password" name="profile[password_new]" class="form-control" />
+                                    </div>
+
+                                    <div class="input-group" style="margin-top: 10px;">
+                                        <span class="input-group-addon">Confirm new password</span>
+                                        <input id="confirmPassword" type="password" name="profile[password_confirm]" class="form-control" />
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        {#<li>
+                            <h3><label for="profile_social">Social Connection</label></h3>
+                            <div class="form-group">
+                                <div class="social-buttons">
+                                     <a href="{{ path('connect', {'service': 'facebook'}) }}" class="btn btn-block btn-facebook-connect {% if app.user.facebookUid %}disabled{% endif %}" {% if app.user.facebookUid %}disabled="disabled"{% endif %}>
+                                        <em class="fa fa-facebook"></em>
+                                        <span>Facebook</span>
+                                    </a>
+                                    <a href="#" class="btn btn-block btn-twitter-connect disabled">
+                                        <em class="fa fa-twitter"></em>
+                                        <span>Twitter</span>
+                                    </a>
+                                    <a href="#" class="btn btn-block btn-gplus-connect disabled">
+                                        <em class="fa fa-google-plus"></em>
+                                        <span>Google</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </li>#}
+                    </ul>
+
+                    <ul>
+                        <li id="profile" class="section-title"><h2>Profile</h2></li>
+                        <li>
+                            <h3><label for="profile_name">Name</label></h3>
+                            <div class="form-group">
+                                <input type="text" name="profile[name]" id="profile_name" class="form-control" placeholder="Name" value="{{ app.user.name }}" />
+                            </div>
+                        </li>
+                        <li>
+                            <h3><label for="profile_gender_male">Gender</label></h3>
+                            <div class="form-group">
+                                <label class="radio-inline">
+                                    <input type="radio" name="profile[gender]" id="profile_gender_male" value="m" {% if app.user.gender|lower == 'male' %}checked="checked"{% endif %} /> Male
+                                </label>
+                                <label class="radio-inline">
+                                    <input type="radio" name="profile[gender]" id="profile_gender_female" value="f" {% if app.user.gender|lower == 'female' %}checked="checked"{% endif %} /> Female
+                                </label>
+                            </div>
+                        </li>
+                        <li>
+                            <h3><label for="profile_photo">Picture</label></h3>
+                            <div class="form-group">
+                                <input type="file" name="profile_photo" id="profile_photo" class="form-control" />
+
+                                {% if app.user.photo %}
+                                    <div class="help-block"><img src="{{ s3url(app.user.photo, 'medium') }}" title="{{ app.user.username }}" /></div>
+                                {% endif %}
+                            </div>
+                        </li>
+                        <li>
+                            <h3><label for="profile_birthday_year">Birthday</label></h3>
+                            <div class="form-group birthdayUser">
+                                <select name="profile[birthday][year]" id="profile_birthday_year">
+                                    <option value=""></option>
+                                    {% for year in range('now'|date('Y'), 'now'|date('Y') - 120) %}
+                                        <option value="{{ year }}" {% if app.user.birthday and app.user.birthday|date('Y') == year %}selected="selected"{% endif %}>{{ year }}</option>
+                                    {% endfor %}
+                                </select>
+                                <select name="profile[birthday][month]" id="profile_birthday_month">
+                                    <option value=""></option>
+                                    {% for month in 1..12 %}
+                                        <option value="{{ month }}" {% if app.user.birthday and app.user.birthday|date('m') == month %}selected="selected"{% endif %}>{{ month }}</option>
+                                    {% endfor %}
+                                </select>
+                                <select name="profile[birthday][day]" id="profile_birthday_day">
+                                    <option value=""></option>
+                                    {% for day in 1..31 %}
+                                        <option value="{{ day }}" {% if app.user.birthday and app.user.birthday|date('d') == day %}selected="selected"{% endif %}>{{ day }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </li>
+                        <li>
+                            <h3><label for="profile_ethnicity">Ethnicity</label></h3>
+                            <div class="form-group">
+                                <select type="text" name="profile[ethnicity]" id="profile_ethnicity" class="form-control">
+                                    <option value=""></option>
+                                    {% for ethnicity in ['White Caucasian', 'Asian', 'Latino / Hispanic', 'Black', 'Middle Eastern', 'Mixed'] %}
+                                        <option value="{{ ethnicity }}" {% if app.user.ethnicity == ethnicity %}selected="selected"{% endif %}>{{ ethnicity }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </li>
+                        <li>
+                            <h3><label for="profile_country">Country</label></h3>
+                            <div class="form-group">
+                                <select type="text" id="select_country" name="country" class="form-control">
+                                    <option value=""></option>
+                                    {% set countryCode = 'US'%}
+
+                                    {% for code, country in countries %}
+                                        {% if app.user.countryName == country or app.user.regionName == country %}
+                                            {% set countryCode = code %}
+                                        {% endif %}
+                                        <option value="{{ country }}" data-code="{{ code }}" {% if countryCode == code %}selected="selected"{% endif %}>{{ country }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </li>
+                        <li>
+                            <h3><label for="profile_region">Region</label></h3>
+                            <div class="form-group">
+                                <select type="text" id="select_region" class="form-control">
+                                    <option value=""></option>
+                                    {% if app.user.countryName and countryCode %}
+                                        {% for region in regions[countryCode] %}
+                                            <option value="{{ region }}" {% if app.user.regionName == region %}selected="selected"{% endif %}>{{ region }}</option>
+                                        {% endfor %}
+                                    {% endif %}
+                                </select>
+                            </div>
+
+                            <input type="hidden" name="profile[region]" id="profile_region" value="{{ app.user.region }}" />
+
+                            <script type="text/javascript">
+                                require(['jquery'],
+                                function($) {
+                                    var regions = {{ regions|json_encode|raw }};
+                                    $('#select_country').trigger('change');
+                                    $('#select_country').on('change', function() {
+                                        $('#select_region').html('<option value=""></option>');
+
+                                        if (regions[$(this).find('option:selected').data('code')]) {
+                                            $.each(regions[$(this).find('option:selected').data('code')], function (k, v) {
+                                                $('#select_region').append('<option value="' + v + '">' + v + '</option>');
+                                            });
+                                        }
+
+                                        $('#profile_region').val($('#select_country').val());
+                                    });
+
+                                    $('#select_region').on('change', function() {
+                                        $('#profile_region').val($('#select_region').val() + ', ' + $('#select_country').val());
+                                    });
+                                });
+                            </script>
+                        </li>
+                        <li>
+                            <h3><label for="profile_distance_by">Distance by</label></h3>
+                            <div class="form-group">
+                                <select type="text" name="profile[distance_by]" id="profile_distance_by" class="form-control">
+                                    {% for option in [
+                                        constant('App\\Entity\\User::DISTANCEBY_MILES'),
+                                        constant('App\\Entity\\User::DISTANCEBY_KILOMETERS')
+                                    ] %}
+                                        <option value="{{ option }}" {% if app.user.distanceBy == option %}selected="selected"{% endif %}>{{ option|title }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <ul>
+                        <li id="extra" class="section-title"><h2>Extra</h2></li>
+                        <li>
+                            <h3><label for="profile_interest_1">Interest</label></h3>
+                            <div class="form-group">
+                                {% set interest = app.user.interest|split('|') %}
+                                <input type="text" name="profile[interest][1]" id="profile_interest_1" class="form-control" placeholder="Interest 1" value="{{ interest[0]|default() }}" /><br />
+                                <input type="text" name="profile[interest][2]" id="profile_interest_2" class="form-control" placeholder="Interest 2" value="{{ interest[1]|default() }}" /><br />
+                                <input type="text" name="profile[interest][3]" id="profile_interest_3" class="form-control" placeholder="Interest 3" value="{{ interest[2]|default() }}" />
+                            </div>
+                        </li>
+                        <li>
+                            <h3><label for="profile_aboutme">About Me</label></h3>
+                            <div class="form-group">
+                                <textarea name="profile[aboutme]" id="profile_aboutme" class="form-control" placeholder="About Me">{{ app.user.aboutme }}</textarea>
+                            </div>
+                        </li>
+                        <li>
+                            <h3><label for="profile_greeting">Greeting</label></h3>
+                            <div class="form-group">
+                                <textarea name="profile[greeting]" id="profile_greeting" class="form-control" placeholder="Greeting">{{ app.user.greeting }}</textarea>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-block btn-primary">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        require(['jquery','igrowl'],
+            function ($) {
+                $.iGrowl.prototype.defaults.placement.x = 'right';
+                $.iGrowl.prototype.defaults.placement.y = 'bottom';
+
+                $('#frmSetting').submit(function (e) {
+                    $('.input_error').removeClass('input_error');
+                    var error = [];
+                    if($('#oldPasword').val()){
+                        if(!$('#newPassword').val()){
+
+                            $('#newPassword').addClass('input_error');
+                            error.push("- New password is required.");
+
+                        }
+
+                        if(!$('#confirmPassword').val()){
+
+                            $('#confirmPassword').addClass('input_error');
+                            error.push("- Confirm new password is required.");
+
+                        }
+
+                        if($('#confirmPassword').val() != $('#newPassword').val()){
+
+                            $('#confirmPassword').addClass('input_error');
+                            error.push("- Confirm new password is not matched.");
+                        }
+                    }
+
+                    if($('#profile_phone_number').val() && !$.isNumeric($('#profile_phone_number').val())){
+                        $('#profile_phone_number').addClass('input_error');
+                        error.push("- Phone number is invalid (numeric characters only).");
+                    }
+
+                    //User must be older than 18 years old.
+                    var birthDate = new Date($('#profile_birthday_year').val(),$('#profile_birthday_month').val(),$('#profile_birthday_day').val());
+                    var today = new Date();
+
+                    var age = today.getFullYear() - birthDate.getFullYear();
+                    var m = today.getMonth() - birthDate.getMonth();
+                    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+                        age--;
+                    }
+
+                    if(age<18){
+                        $('#profile_birthday_year').addClass('input_error');
+                        $('#profile_birthday_month').addClass('input_error');
+                        $('#profile_birthday_day').addClass('input_error');
+                        error.push("- User must be older than 18 years old.");
+                    }
+
+                    if(error.length>0){
+                        $.iGrowl({
+                            type: 'error-sat',
+                            message: error.join('<br>'),
+                            icon: 'fa-times-circle-o',
+                            delay:5000
+                        })
+
+                        e.preventDefault();
+                        return false
+                    }
+                });
+            });
+    </script>
+{% endblock %}

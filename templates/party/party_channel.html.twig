@@ -1,0 +1,320 @@
+{% extends 'layout.html.twig' %}
+
+{% block scripts_after %}
+    <script type="text/javascript">
+
+    </script>
+
+{% endblock %}
+
+
+
+{% block content %}
+        <style>
+            .form-check-inline{
+                display: inline-block;
+            }
+            .text_red{color: red!important;}
+        </style>
+    <div class="partyWrap partyBackground {{ party.background }}">
+{#        <div class="mask"></div>#}
+        <div class="container" style="z-index: 10; position: relative;">
+            <div class="row" style="padding-top: 70px;padding-bottom: 70px;">
+                <div class="col-md-6 ">
+
+                    <div class="partyWrapFrom" >
+
+                        <h1 class="row">
+                            ChatApp Party
+                        </h1>
+
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            <label>Event subject:</label>
+                            <div>
+                                {{ party.subject }}
+                            </div>
+                        </div>
+                        <div class="col-md-6 form-group" >
+                            <label>Host name:</label>
+                            <div>
+                                <i class="fa fa-user"></i> {{ party.name }}
+                            </div>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label>Event Time:</label>
+                            <div>
+                                <i class="fa fa-clock-o"></i> <b><span id="event_date"></span></b> from <span id="event_start"></span> to <span id="event_end"></span>
+                                <input type="hidden" value="{{ party.eventdate|date("m/d/Y")}}" id="input_event_date">
+                                <input type="hidden" value="{{ party.starttime }}" id="input_event_starttime">
+                                <input type="hidden" value="{{ party.endtime }}" id="input_event_endtime">
+                                <input type="hidden" value="{{ party.timezone }}" id="input_event_timezone">
+                                <input type="hidden" value="" id="input_my_timezone">
+                            </div>
+                            <h3 id="event_during" style="color: #000D65; display: none">Event in progress, time remaining:</h3>
+                            <div id="clockdiv" style="display: none">
+                                <div>
+                                    <span class="days"></span>
+                                    <div class="smalltext">Days</div>
+                                </div>
+                                <div>
+                                    <span class="hours"></span>
+                                    <div class="smalltext">Hours</div>
+                                </div>
+                                <div>
+                                    <span class="minutes"></span>
+                                    <div class="smalltext">Minutes</div>
+                                </div>
+                                <div>
+                                    <span class="seconds"></span>
+                                    <div class="smalltext">Seconds</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12"></div>
+
+
+
+
+
+                    </div>
+
+                    <div class="eventStatus">
+                        <div class="form-group share_link">
+                            <label>Link:</label>
+                            <div>
+                                <a id="link" style="color:#2B4711;" target="_blank" href="{{ url('party_group') }}?group={{ party.host }}">{{ url('party_group') }}?group={{ party.host }}</a>
+                            </div>
+                            <div style="color: red; margin-top: 20px;">Please copy the link above and share to everyone!</div>
+                            <div style="margin-top: 15px;"> <a onclick="doCopyLink()" class="btn btn-success pointer">Copy Link</a></div>
+                            <div style="height: 20px"></div>
+                            <div class="sharethis-inline-share-buttons" data-url="{{ url('party_group') }}?group={{ party.host }}" data-title="Share"></div>
+                        </div>
+                    </div>
+
+                    </div>
+                    <div class="partyWrapFrom" style="margin-top: 20px;">
+
+                        <h2>
+                            Your information:
+                        </h2>
+                        <div class="col-md-12"></div>
+                        <div class="col-md-6 form-group" >
+                            <label>Your Name:</label>
+                            <div>
+                                <i class="fa fa-user"></i> {{ partyMember.name }}
+                            </div>
+                        </div>
+                        <div class="col-md-6 form-group" >
+                            <label>Email:</label>
+                            <div>
+                                <i class="fa fa-user"></i> {{ partyMember.email }}
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+                <div class="col-md-6" >
+                    <div class="partyWrapRight" style="text-align: center;">
+                        <h1>Have all your guests meet each<br> other in 60 seconds sessions</h1>
+                        <img style="max-width:100%;" src="{{ asset('static/party/party') }}{{ random(1,5) }}.png"/>
+                        <br><br>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div id="countDown" class="windowFix"  style="display: none;">
+        <div class="mask"></div>
+        <div class="countdownWrap" id="countdownWrap">
+            5
+        </div>
+        <div></div>
+    </div>
+
+    <div id="chatRoom" class="windowFix" style="display: none;">
+        <div class="mask"></div>
+        <div class="chatWindow">
+            <iframe id="chatIframe" src="" style="width: 100%; height: 100%"></iframe>
+        </div>
+    </div>
+	<style>
+		.content-main{margin:0!important}
+		.ftr {
+			margin-top:0px!important;
+		}
+	</style>
+    <style>
+        .windowFix{
+            position:absolute; top: 0; left: 0; width: 100%;height: 100%;
+        }
+        .mask{
+            position: fixed; top: 0; left: 0; width: 100%;height: 100%; background: #000; z-index: 999999; opacity: 0.8;
+        }
+        .countdownWrap {
+            background: #1B924A; width: 50px; height: 50px; border-radius: 50%; border: 2px solid #fff; z-index: 9999999;
+            position: absolute; top: 50%;left: 50%; margin-top: -25px; margin-left: -25px;
+            box-shadow: 0 0 5px rgb(240,102,0);
+            opacity: 0;
+            animation-name: bounceIn;
+            animation-duration: 450ms;
+            animation-timing-function: linear;
+            animation-fill-mode: forwards;
+            font-size: 14em;
+            text-align: center;
+            color: #fff;
+        }
+
+        .countdownWrapActive{
+            width: 300px; height: 300px;
+            margin-top: -150px; margin-left: -150px;
+
+        }
+
+        .chatWindow{
+            width: 700px;
+            height: 392px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            z-index: 99999999;
+            background: #fff;
+            margin-left: -350px;
+            margin-top: -50px;
+        }
+
+        @keyframes bounceIn{
+            0%{
+                opacity: 0;
+                transform: scale(0.3) translate3d(0,0,0);
+            }
+            50%{
+                opacity: 0.9;
+                transform: scale(1.1);
+            }
+            80%{
+                opacity: 1;
+                transform: scale(0.89);
+            }
+            100%{
+                opacity: 1;
+                transform: scale(1) translate3d(0,0,0);
+            }
+        }
+
+    </style>
+    <script>
+        require([
+            'underscore',
+            'jquery',
+            'jquery.view',
+            'jquery.bridget'
+        ], function() {
+            'use strict';
+            $('#clockdiv').show();
+            let my_timezone = getTimezoneOffset();
+            $('#input_my_timezone').val(my_timezone);
+
+            let date_start = $('#input_event_date').val() + " " + $('#input_event_starttime').val();
+            let date_end = $('#input_event_date').val() + " " + $('#input_event_endtime').val();
+            let diff = parseInt(my_timezone) - parseInt($('#input_event_timezone').val());
+            console.log("diff:",diff);
+
+            let event_start = new Date(Date.parse(new Date(date_start)) + diff * 60 * 60 * 1000);
+            let event_end = new Date(Date.parse(new Date(date_end)) + diff * 60 * 60 * 1000);
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            $('#event_date').text(event_start.toLocaleDateString("en-US",options));
+            $('#event_start').text(formatAMPM(event_start));
+            $('#event_end').text(formatAMPM(event_end));
+//todo
+            //startCountdown();
+            let check_start = getTimeRemaining(event_start);
+            let check_end = getTimeRemaining(event_end);
+
+            if(check_start.total > 0){
+                $('.share_link').show();
+                initializeClock('clockdiv', event_start);
+            }else if(check_start.total < 0 && check_end.total>0){
+                $('#event_during').show();
+                $('.share_link').show();
+                initializeClock('clockdiv', event_end);
+                startCountdown();
+            }else{
+                $('#event_during').hide();
+                $('.share_link').hide();
+                $('#clockdiv').html("<h2 style='color:red'>Sorry, the event has ended.</h2>");
+            }
+        });
+    </script>
+    <script>
+        let count = 5;
+        let countDownInterval = null;
+
+
+        function doMeetPeople() {
+            let url = '/partMeetup?group={{ party.host }}&me={{ partyMember.hash }}';
+            document.location = url;
+        }
+
+        function startCountdown() {
+            $('#countdownWrap').text(count);
+            $('#countDown').show();
+            $('#countdownWrap').addClass('countdownWrapActive');
+
+            countDownInterval = setInterval(function () {
+                count = count-1;
+                $('#countdownWrap').text(count);
+                if(count == 0){
+                    clearInterval(countDownInterval);
+                    count = 5;
+                    $('#countdownWrap').html('<table align="center" style="margin-top:90px;"><tr><td><div style="line-height: 30px;"><img src="/static/images/chatload.gif"/></div></td></tr><tr><td style="font-size: 16px; line-height: 25px;">Please wait a moment.</td></tr></table>')
+                    // $('#countDown').hide();
+
+                    doMeetPeople();
+                }
+            },1000)
+        }
+
+        function getTimeRemaining(endtime) {
+            const total = Date.parse(endtime) - Date.parse(new Date());
+            const seconds = Math.floor((total / 1000) % 60);
+            const minutes = Math.floor((total / 1000 / 60) % 60);
+            const hours = Math.floor((total / (1000 * 60 * 60)) % 24);
+            const days = Math.floor(total / (1000 * 60 * 60 * 24));
+
+            return {
+                total,
+                days,
+                hours,
+                minutes,
+                seconds
+            };
+        }
+
+        function initializeClock(id, endtime) {
+            const clock = document.getElementById(id);
+            const daysSpan = clock.querySelector('.days');
+            const hoursSpan = clock.querySelector('.hours');
+            const minutesSpan = clock.querySelector('.minutes');
+            const secondsSpan = clock.querySelector('.seconds');
+
+            function updateClock() {
+                const t = getTimeRemaining(endtime);
+
+                daysSpan.innerHTML = t.days;
+                hoursSpan.innerHTML = ('0' + t.hours).slice(-2);
+                minutesSpan.innerHTML = ('0' + t.minutes).slice(-2);
+                secondsSpan.innerHTML = ('0' + t.seconds).slice(-2);
+
+                if (t.total <= 0) {
+                    startCountdown();
+                    if(timeinterval) clearInterval(timeinterval);
+                }
+            }
+
+            updateClock();
+            timeinterval = setInterval(updateClock, 1000);
+        }
+    </script>
+{% endblock %}

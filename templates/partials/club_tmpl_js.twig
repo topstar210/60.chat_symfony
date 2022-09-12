@@ -1,0 +1,78 @@
+<script type="text/template" id="club-template">
+{#{% apply spaceless %}#}
+<%
+if(me){
+    isJoined = true;
+}else{
+    isJoined = false;
+}
+
+member_info = '';
+if(total_members){
+    member_info += total_members+ ' member';
+    if(total_members >1) member_info += 's';
+}
+
+if(total_applications){
+    member_info += ', '+total_applications+ ' applicant';
+    if(total_applications >1) member_info += 's';
+}
+
+%>
+
+    <div class="board clubItem clubItem_<%=id%> <% if (isJoined) { %> isJoined <% }else{ %>joinClub<% }%>">
+        <div class="board-link-wrapper">
+            <span>
+                <h3 class="board-name">
+                    <div class="title">
+                        <span class="name"><%=name%></span>
+                        <% if (distance>0) { %>
+                            <small><em class="fa fa-map-marker"></em> <%=parseFloat(distance).toFixed(2)%> {% if app.user.distanceBy == constant('App\\Entity\\User::DISTANCEBY_MILES') %}m{% else %}km{% endif %}</small>
+                        <% } %>
+                        <div class="ajax-loader" style="top: 10px; display: none;"></div>
+                    </div>
+                    <h4 class="fullname"><%=description%></h4>
+                </h3>
+            </span>
+
+            <div class="board-cover-wrapper">
+                <span title="<%=name%>">
+                    <% if (!_.isNull(photo) && photo.length>0) { %>
+                        <img class="board-cover" src="<%=photo.replace("/origin/", "/large/")%>" alt="<%=name%>" />
+                    <% } else if (!_.isNull(background) && background.length>0) { %>
+                        <img class="board-cover" src="<%=background.replace("/origin/", "/large/")%>" alt="<%=name%>" />
+                    <% } else { %>
+                        <div class="board-cover"></div>
+                    <% } %>
+                </span>
+
+                <span class="board-pin-count">
+                    <%=member_info%>
+                </span>
+            </div>
+
+            <ul class="board-thumbs">
+                <% for (var i=0; i<4; i++) { %>
+                    <li><% if (!_.isUndefined(memeber_head[i])) { %><%=memeber_head[i].avatar%><% } %></li>
+                <% } %>
+            </ul>
+
+            {% if is_granted('ROLE_ADMIN') %}
+                <button type="button" class="btn btn-danger btn-block js-club-delete"
+                        data-url="{{ path('api_clubs_delete_club_id', {'club_id': 'CID'}) }}"
+                >
+                    <em class="fa fa-trash"></em>
+                </button>
+            {% endif %}
+        </div>
+
+        <div class="clubAction">
+            <a onclick="viewClub(this)" data-cluburl="{{ path('api_clubs_get') }}" data-clubid="<%=id %>" class="btn btn-success">View Detail</a>
+            <% if (!isJoined) { %>
+            <a onclick="joinClub(this)" data-inviteurl="{{ path('api_clubs_invite') }}" data-clubid="<%=id %>" class="btn btn-primary">Join Now</a>
+            <% }%>
+        </div>
+
+    </div>
+{#{% endapply %}#}
+</script>

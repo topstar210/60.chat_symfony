@@ -1,0 +1,278 @@
+{#{% apply spaceless %}#}
+<div id="addMomentModal" class="modal fade addMomentModal" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" >Moment</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frmAddMoment" action="{{ path('api_moments_add') }}" method="post" data-toggle="validator" role="form" novalidate>
+                     
+                    <div class="form-group">
+                        <label for="clubName" class="control-label">Description</label>
+                        <input type="text" class="form-control" id="momentName" name="name" placeholder="Title" required>
+                        <div class="invalid-input">Required field.</div>
+                    </div>
+                    <div class="form-group momentPhoto">
+                        <label for="momentCover" class="control-label">Photo</label>
+                        <input type="hidden" class="form-control" name="photos" id="momentCover" >
+                        <div class="uploadImge"><a role="button" data-upload-file="{{ path('api_file_upload_file', {'token': app.user.token}) }}" class="btn btn-default" id="btn-attach-cover" style="position: relative">
+                                <i class="fa fa-photo"></i> Upload
+                            </a></div>
+                        <div class="preview" style="display: none"><img id="momentPhoto_preview"></div>
+                        <div class="message_error"></div>
+                        <div class="invalid-input">Required field.</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Location</label>
+                        <div id="locationName"></div>
+                        <input type="hidden" value="" id="latitude" name="latitude">
+                        <input type="hidden" value="" id="longitude" name="longitude">
+                        <input type="hidden" value="" id="location" name="location">
+                        {#                        <a id="getMyLocation" class="btn btn-primary btn-sm">Get my location</a>#}
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Submit</button> <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <span class="ajax-loader-inline" style="top: 10px;position: relative;display: none;"></span>
+                        <div class="frmError" style="display: none;" id="frmError"></div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    require(['jquery','jquery.autosize',
+            'jquery.uploader',
+            'masonry',
+            'imagesloaded',
+            'jquery.infinitescroll',
+            'jquery.bridget'],
+        function($) {
+            getMyipLookUp_moment ();
+            //add Club
+            $('#frmAddMoment').submit(function (e) {
+                e.preventDefault();
+                var error = false;
+                $('.addMomentModal .input_error').removeClass('input_error');
+                $('.addMomentModal .invalid-input').hide();
+                $('.addMomentModal #frmError').hide();
+
+                if(isUpload){
+                    $('.addMomentModal #frmError').html("Please wait while file is uploading...");
+                    $('.addMomentModal #frmError').fadeIn();
+                    return;
+                }
+
+                if(!$('.addMomentModal #momentName').val()){
+                    $('.addMomentModal #momentName').addClass('input_error');
+                    $('.addMomentModal #momentName').closest('.form-group').find('.invalid-input').show();
+                    error = true;
+                }
+ 
+                if(!$('.addMomentModal #momentCover').val()){
+                    $('.addMomentModal #btn-attach-cover').addClass('input_error');
+                    $('.addMomentModal #momentCover').closest('.form-group').find('.invalid-input').show();
+                    error = true;
+                }
+
+
+                if(!error){
+                    $('.addMomentModal .ajax-loader-inline').show();
+                    var frm_url = $(this).attr('action')+'?'+$('#frmAddMoment').serialize()+'&token='+ChatApp.userToken;
+
+                    $.getJSON(frm_url, {
+                        token: ChatApp.userToken
+                    }, function(json) {
+                        $('.addMomentModal .ajax-loader-inline').hide();
+                        $('#addMomentModal').modal('hide');
+                        console.log(json);
+                        if(json.success){
+
+                            var moment  = json.data.moment;
+
+                            if($('body').hasClass('moments')){
+                                var comments = [];
+                                for (var j=0; j<moment.comments.length; j++) {
+                                    // console.log(moment.comments[j].user,moment.comments[j]);
+                                    var template = _.template($('#moment-comment-template').html());
+                                    comments.push(template($.extend(moment.comments[j], {index: j})).replace(/USERNAME/g, moment.comments[j].user));
+                                }
+
+                                var isLike = false;
+                                for (var j=0; j<moment.likes.length; j++) {
+                                    if (moment.likes[j].user == ChatApp.userUsername) {
+                                        isLike = true;
+                                    }
+                                }
+
+                                var template = _.template($('#moment-template').html());
+                                moment = template($.extend(moment, {
+                                    id: moment.id,
+                                    image: moment.images[0],
+                                    comments: comments.join(''),
+                                    totalComments: moment.comments.length,
+                                    totalLikes: moment.likes.length,
+                                    isLike: isLike
+                                }))
+                                    .replace(/MID/g, moment.id)
+                                    .replace(/USERNAME/g, moment.username);
+
+                                var elem = document.createElement('div');
+                                $(elem).addClass('masonry-item pin').html(moment);
+
+                                $('.masonry .masonry-item:first-child').prepend($(elem));
+                                ChatApp._masonry.masonry();
+                            }
+
+                            $.iGrowl({
+                                type: 'success-sat',
+                                message: 'Your moment has been added.',
+                                icon: 'fa-check-circle-o',
+                                delay:3000
+                            })
+
+                        }else{
+                            $.iGrowl({
+                                type: 'error-sat',
+                                message: json.data.message,
+                                icon: 'fa-times-circle-o',
+                                delay:5000
+                            })
+                        }
+
+
+                        // reload list
+                        setTimeout(function() {
+                            $('.masonry').masonry();
+                        }, 0);
+
+                        $('#addMomentModal').modal('hide');
+
+                    });
+
+                }
+
+                return false;
+            })
+
+            var currentUpload = '';
+            var isUpload = false;
+
+            /**
+             * Upload cover file
+             */
+            var uploader1 = new Uploader({
+                selectButton: '.addMomentModal #btn-attach-cover',
+                url: $('.addMomentModal #btn-attach-cover').data('upload-file')
+            });
+
+
+            uploader1.on('uploadProgress', function() {
+                $('.addMomentModal .ajax-loader-inline').show();
+            });
+
+            uploader1.on('uploadComplete', function() {
+                $('.addMomentModal .ajax-loader-inline').hide();
+                isUpload = false;
+                $('.addMomentModal #frmError').hide();
+                if(currentUpload == 'momentCover'){
+                    var respone = JSON.parse(arguments[2]);
+                    // console.log(respone);
+                    if(respone.success){
+                        var f = respone.data.split('/');
+                        $('.addMomentModal .momentPhoto .message_error').hide();
+                        $('.addMomentModal #momentCover').val(respone.data);
+                    }else{
+                        $('.addMomentModal .momentPhoto .message_error').show();
+                        $('.addMomentModal .momentPhoto .message_error').text(respone.data.message);
+                        $('.addMomentModal #momentCover').val('');
+                        $('.addMomentModal .momentPhoto .preview').hide();
+                    }
+
+                }
+
+            });
+
+            $('.addMomentModal .momentPhoto input[type=file]').click(function (e) {
+                if(isUpload) {
+                    e.preventDefault();
+                    $('.addMomentModal #frmError').html("Please wait while file is uploading...");
+                    $('.addMomentModal #frmError').fadeIn();
+                    return false;
+                }
+                currentUpload = 'momentCover';
+            });
+
+            $('.addMomentModal .backgroundPhoto input[type=file]').click(function (e) {
+                if(isUpload) {
+                    e.preventDefault();
+                    $('.addMomentModal #frmError').html("Please wait while file is uploading...");
+                    $('.addMomentModal #frmError').fadeIn();
+                    return false;
+                }
+                currentUpload = 'clubBackground';
+            });
+
+            //preview images
+            $('.addMomentModal .momentPhoto input[type=file]').change(function (e) {
+                    preview_image_moment(e,'momentPhoto_preview');
+                    isUpload = true;
+            });
+
+        });
+
+    function preview_image_moment(event,previewId)
+    {
+        var reader = new FileReader();
+        reader.onload = function()
+        {
+            var output =  $('.addMomentModal #'+previewId);
+            output.attr('src',reader.result);
+            $('.addMomentModal #'+previewId).parent().show();
+        }
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function getMyipLookUp_moment () {
+        $('.addMomentModal .ajax-loader').show();
+        $.ajax('http://ip-api.com/json')
+            .then(
+                function success(response) {
+                    $('.addMomentModal .ajax-loader').hide();
+                    // console.log('Moment Location: ', response);
+                    $('.addMomentModal input[name=latitude]').val(response.lat);
+                    $('.addMomentModal input[name=longitude]').val(response.lon);
+
+                    $('.addMomentModal #locationName').text(response.regionName + ', '+ response.country);
+                    $('.addMomentModal #location').val(response.regionName + ', '+ response.country);
+
+                },
+
+                function fail(data, status) {
+                    $('.addMomentModal .ajax-loader').hide();
+                    console.log('Request failed.  Returned status of',
+                        status);
+                }
+            );
+    }
+
+    setInterval(inputFileMomentEvent,500);
+    function inputFileMomentEvent() {
+        require(['jquery'],
+            function($) {
+                $('#btn-attach-cover input[type=file]').change(function (e) {
+                    preview_image_moment(e, 'momentPhoto_preview');
+                    isUpload = true;
+                });
+            });
+    }
+
+
+</script>
+{#{% endapply %}#}

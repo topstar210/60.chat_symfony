@@ -1,0 +1,247 @@
+{% extends 'layout.html.twig' %}
+
+{% block scripts_after %}
+
+    <link rel="stylesheet" href="/static/lib/datepicker/datepicker.min.css" />
+
+{% endblock %}
+
+
+
+{% block content %}
+        <style>
+            .form-check-inline{
+                display: inline-block;
+            }
+            .text_red{color: red!important;}
+        </style>
+    <div class="partyWrap partyBackground">
+        <div class="mask"></div>
+        <div class="container" style="z-index: 10; position: relative;">
+            <div class="row" style="padding-top: 70px;padding-bottom: 70px;">
+                <div class="col-md-5 ">
+                    <div class="partyWrapFrom">
+
+                    <h1>
+                        ChatApp Party
+                    </h1>
+                    <div style="font-size: 1.5em; font-weight: bold;">Host an Online Party</div>
+
+                    <form id="frmFacetime" action="{{ path('party_register') }}" method="post" onsubmit="return validForm(event)" style="margin: 15px;">
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Name your event:</label>
+                            <input type="text" class="form-control" name="subject" placeholder="Subject"  value="My Online Party" id="subject" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Name:</label>
+                            <input type="text" class="form-control" name="name" placeholder="Full name"  value="" id="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Your email:</label>
+                            <input type="email" class="form-control" name="email" placeholder="Email"  value="" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Event time:</label>
+                            <div class="event_type">
+                                <label><input type="radio" name="type" checked value="schedule"/> Schedule</label>
+                                <label><input type="radio" name="type"  value="now"/> Now</label>
+                                <div>
+                                    <input type="hidden" name="date_now" id="date_now" value=""/>
+                                    <input type="hidden" name="date_now_start" id="date_now_start" value=""/>
+                                    <input type="hidden" name="date_now_end" id="date_now_end" value=""/>
+                                </div>
+                            </div>
+                            <div class="schedule_item">
+                            <input type="text" class="form-control" autocomplete="off" name="date" placeholder="Date"  value="" id="date">
+                            </div>
+                        </div>
+                        <div class="schedule_item">
+                        <div><label><strong>What time wil your event start?</strong></label></div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-12">
+                                     <input type="hidden" id="timezone" name="timezone" value=""/>
+                                     <select class="selectDropdown" name="hour_start">
+                                         <option >1</option>
+                                         <option >2</option>
+                                         <option >3</option>
+                                         <option >4</option>
+                                         <option >5</option>
+                                         <option >6</option>
+                                         <option >7</option>
+                                         <option >8</option>
+                                         <option selected>9</option>
+                                         <option >10</option>
+                                         <option >11</option>
+                                         <option >12</option>
+                                     </select>
+                                    <select class="selectDropdown"  name="minute_start">
+                                        <option selected>00</option>
+                                        <option >05</option>
+                                        <option >10</option>
+                                        <option >15</option>
+                                        <option >20</option>
+                                        <option >25</option>
+                                        <option >30</option>
+                                        <option >35</option>
+                                        <option >40</option>
+                                        <option >45</option>
+                                        <option >50</option>
+                                        <option >55</option>
+                                    </select>
+                                    <select class="selectDropdown"  name="time_start">
+                                        <option>AM</option>
+                                        <option selected>PM</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div><label><strong>What time wil your event end?</strong></label></div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <select class="selectDropdown" name="hour_end">
+                                        <option >1</option>
+                                        <option >2</option>
+                                        <option >3</option>
+                                        <option >4</option>
+                                        <option >5</option>
+                                        <option >6</option>
+                                        <option >7</option>
+                                        <option >8</option>
+                                        <option>9</option>
+                                        <option selected>10</option>
+                                        <option >11</option>
+                                        <option >12</option>
+                                    </select>
+                                    <select class="selectDropdown"  name="minute_end">
+                                        <option selected>00</option>
+                                        <option >05</option>
+                                        <option >10</option>
+                                        <option >15</option>
+                                        <option >20</option>
+                                        <option >25</option>
+                                        <option >30</option>
+                                        <option >35</option>
+                                        <option >40</option>
+                                        <option >45</option>
+                                        <option >50</option>
+                                        <option >55</option>
+                                    </select>
+                                    <select class="selectDropdown"  name="time_end">
+                                        <option>AM</option>
+                                        <option selected>PM</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Background:</label>
+                            <input type="hidden" id="background" name="background" value="">
+                            <div class="backgroundChoice">
+                                <span data-bg="bgImg_0" class="bg_image bg_image_selected bgImg_0">None</span>
+                                <span data-bg="bgImg_1" class="bg_image bgImg_1">&nbsp;</span>
+                                <span data-bg="bgImg_2" class="bg_image bgImg_2">&nbsp;</span>
+                                <span data-bg="bgImg_3" class="bg_image bgImg_3">&nbsp;</span>
+                                <span data-bg="bgImg_4" class="bg_image bgImg_4">&nbsp;</span>
+                                <span data-bg="bgImg_5" class="bg_image bgImg_5">&nbsp;</span>
+                                <span data-bg="bgImg_6" class="bg_image bgImg_6">&nbsp;</span>
+                                <span data-bg="bgImg_7" class="bg_image bgImg_7">&nbsp;</span>
+                                <span data-bg="bgImg_8" class="bg_image bgImg_8">&nbsp;</span>
+                                <span data-bg="bgImg_9" class="bg_image bgImg_9">&nbsp;</span>
+                                <span data-bg="bgImg_10" class="bg_image bgImg_10">&nbsp;</span>
+                                <span data-bg="bgImg_11" class="bg_image bgImg_11">&nbsp;</span>
+                                <span data-bg="bgImg_12" class="bg_image bgImg_12">&nbsp;</span>
+                                <span data-bg="bgImg_13" class="bg_image bgImg_13">&nbsp;</span>
+                                <span data-bg="bgImg_14" class="bg_image bgImg_14">&nbsp;</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="padding-top: 15px;">
+                            <button class="btn btn-lg btn-danger">Create Event</button>
+                        </div>
+                    </div>
+                    </form>
+                    </div>
+                </div>
+                <div class="col-md-7" >
+                    <div class="partyWrapRight" style="text-align: center;">
+                        <h1>Have all your guests meet each<br> other in 60 seconds sessions</h1>
+                        <img style="max-width:100%;" src="{{ asset('static/party/party3.png') }}"/>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+	<style>
+		.content-main{margin:0!important}
+		.ftr {
+			margin-top:0px!important;
+		}
+	</style>
+    <script>
+        require([
+            'underscore',
+            'jquery',
+            'jquery.view',
+            'jquery.bridget',
+            'static/lib/datepicker/datepicker.min.js'
+        ], function() {
+            'use strict';
+            jQuery('#date').datepicker({
+                minDate: 0
+            });
+
+            $('.event_type input').click(function () {
+                if($(this).val() == 'schedule'){
+                    $('.schedule_item').show();
+                }else{
+                    $('.schedule_item').hide();
+                    updateNowType();
+                }
+            })
+
+
+            $('#timezone').val(getTimezoneOffset());
+
+            $('.bg_image').click(function () {
+                let bg = $(this).data('bg');
+                $('#background').val(bg);
+                $('.backgroundChoice').find('.bg_image_selected').removeClass('bg_image_selected');
+                $(this).addClass('bg_image_selected');
+                if(bg){
+                    $('.partyWrap').removeClass( $('.partyWrap').data("bg"));
+                    $('.partyWrap').data("bg",bg);
+                    $('.partyWrap').addClass(bg);
+                }
+
+            })
+
+            function updateNowType() {
+                let event_start = new Date();
+                let event_end =  new Date(Date.parse(event_start) + 60 * 60 * 1000);
+
+                $('#date_now').val(event_start.toLocaleDateString());
+                $('#date_now_start').val(formatAMPM(event_start));
+                $('#date_now_end').val(formatAMPM(event_end));
+            }
+
+            setInterval(updateNowType,1000);
+            
+
+        });
+
+        function validForm(e) {
+            if($('.event_type :checked').val()=='schedule'){
+                if(!$('#date').val()){
+                    $('#date').focus();
+                    e.preventDefault();
+                    return false;
+                }
+            }
+        }
+    </script>
+{% endblock %}

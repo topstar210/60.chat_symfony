@@ -1,0 +1,154 @@
+{% if page is not defined or page not in ['moments', 'radar'] %}
+    {% set page = 'moments' %}
+{% endif %}
+
+{% set isProcess = app.request.get('search') == 'process' %}
+{% set gender    = app.request.get('gender') %}
+{% set age_from  = app.request.get('age_from') %}
+{% set age_to    = app.request.get('age_to') %}
+{% set ethnicity = app.request.get('ethnicity') %}
+{% set country   = app.request.get('country') %}
+{% set distance  = app.request.get('distance') %}
+{% set onlyPhoto = app.request.get('only_photo') %}
+{% set sort      = app.request.get('sort') %}
+
+{% if not isProcess and not gender %}
+    {% set gender = app.user.gender == 'Male' ? 'f' : 'm' %}
+{% endif %}
+
+<div class="search-filter-wrapper">
+    <form id="frmPeopleFilter" action="{{ path(page) }}" method="get">
+        <input type="hidden" name="search" value="process" />
+        <input id="filter_latitude" type="hidden" name="latitude" value="{{ app.user.latitude }}" />
+        <input id="filter_longitude" type="hidden" name="longitude" value="{{ app.user.longitude }}" />
+
+        {% if page == 'moments' %}
+            <input type="hidden" name="only_photo" value="{{ app.request.get('only_photo') }}" />
+        {% endif %}
+
+        <div class="row">
+            <ul class="col-md-12 col-xs-12">
+                <li><input type="text" name="query" value="{{ app.request.get('query') }}" placeholder="Search" autocomplete="off" spellcheck="false" class="form-control" /></li>
+                <li class="divider"></li>
+            </ul>
+            <ul class="col-md-6 col-xs-6">
+                <li><select name="distance" class="form-control input-sm">
+                    {% for key in ['', 10, 100, 1000, 2500] %}
+                        <option value="{{ key }}" {% if distance == key %}selected="selected"{% endif %} /> {% if key|length == 0 %}Any distance{% else %}{{ key }} {{ app.user.distanceBy|title }}{% endif %}</option>
+                    {% endfor %}
+                </select></li>
+
+                <li><select name="gender" class="form-control input-sm">
+                    {% set options = {
+                        '': 'Any Gender',
+                        'm': 'Male Only',
+                        'f': 'Female Only',
+                    } %}
+                    {% for key, value in options %}
+                        <option value="{{ key }}" {% if gender == key %}selected="selected"{% endif %} /> {{ value }}</option>
+                    {% endfor %}
+                </select></li>
+
+                <li><div class="ageInput">
+                     <div class="clearfix">
+                    <input type="number" name="age_from" id="age_from" class="form-control input-sm" value="{{ age_from }}" placeholder="From age" />
+                    <input type="number" name="age_to" id="age_to" class="form-control input-sm" value="{{ age_to }}" placeholder="To age" />
+                     </div>
+                    <div class="invalid-input">Invalid age.</div>
+                    </div>
+                </li>
+            </ul>
+            <ul class="col-md-6 col-xs-6">
+                <li><select name="ethnicity" class="form-control input-sm">
+                    {% for key, value in ['Any Ethnicity', 'White Caucasian', 'Asian', 'Latino / Hispanic', 'Black', 'Middle Eastern', 'Mixed'] %}
+                        <option value="{% if key > 0 %}{{ value }}{% endif %}" {% if ethnicity == value %}selected="selected"{% endif %} /> {{ value }}</option>
+                    {% endfor %}
+                </select></li>
+
+                <li><select name="country" class="form-control input-sm">
+                    <option value="">All Countries</option>
+                    {% for code, name in countries %}
+                        <option value="{{ name }}" {% if country == name %}selected="selected"{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select></li>
+
+                {% if page == 'radar' %}
+                    {% set options = {
+                        '0': 'With or Without Photo',
+                        '1': 'Photo Only',
+                    } %}
+                    <li><select name="only_photo" class="form-control input-sm">
+                        {% for key, value in options %}
+                            <option value="{{ key }}" {% if onlyPhoto == key %}selected="selected"{% endif %} /> {{ value }}</option>
+                        {% endfor %}
+                    </select></li>
+                {% endif %}
+
+                <li><select name="sort" class="form-control input-sm">
+                    {% set options = {
+                        'recent': 'Recently created',
+                        'oldest': 'Oldest created',
+                        'distance': 'Distance'
+                    } %}
+                    {% for key, value in options %}
+                        <option value="{{ key }}" {% if sort == key %}selected="selected"{% endif %} /> {{ value }}</option>
+                    {% endfor %}
+                </select></li>
+            </ul>
+        </div>
+        <div class="submit top10"><button type="submit" class="btn btn-primary btn-sm btn-block">Apply</button></div>
+    </form>
+
+    <script type='text/javascript'>
+        require(['jquery'],
+        function($) {
+            var filter_latitude = $('#filter_latitude').val();
+            var filter_longitude = $('#filter_longitude').val();
+            if(!filter_latitude || ! filter_longitude){
+                ipLookUp ();
+            }
+
+            function ipLookUp () {
+                $('.ajax-loader').show();
+                $.ajax('http://ip-api.com/json')
+                    .then(
+                        function success(response) {
+                            $('.ajax-loader').hide();
+                            console.log('User\'s Location Data is ', response);
+                            $('#filter_latitude').val(response.lat);
+                            $('#filter_longitude').val(response.lon);
+                        },
+
+                        function fail(data, status) {
+                            $('.ajax-loader').hide();
+                            console.log('Request failed.  Returned status of',
+                                status);
+                        }
+                    );
+            }
+
+            $('#frmPeopleFilter').submit(function (e) {
+                 var age_from = parseInt($('#age_from').val());
+                 var age_to = parseInt($('#age_to').val());
+                 var error = false;
+                 $('.invalid-input').hide();
+                 $('.input_error').removeClass('input_error');
+                if(age_from<0){
+                    $('#age_from').addClass('input_error');
+                    $('.ageInput').find('.invalid-input').show();
+                    error = true;
+                }
+                if(age_to<0 || (age_from > 0 && age_to >0 && age_from > age_to)){
+                    $('#age_to').addClass('input_error');
+                    $('.ageInput').find('.invalid-input').show();
+                    error = true;
+                }
+
+                if(error){
+                    e.preventDefault();
+                    return false;
+                }
+            })
+        });
+    </script>
+</div>

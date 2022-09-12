@@ -1,0 +1,54 @@
+{#{% apply spaceless %}#}
+    <div class="board" data-username="{{ contact.username }}">
+        <div class="online-status" title="Online">
+            <em class="fa fa-circle"></em>
+        </div>
+        <div class="board-link-wrapper">
+            <a href="{{ path('profile', {'username': contact.username}) }}">
+                <h3 class="board-name">
+                    <div class="title">
+                        {% if contact.distance > 0 %}
+                            <div class="pull-right">
+                                <em class="fa fa-map-marker"></em> {{ contact.distance|number_format(2, '.', '') }} {% if app.user.distanceBy == constant('App\\Entity\\User::DISTANCEBY_MILES') %}m{% else %}km{% endif %}
+                            </div>
+                        {% endif %}
+
+                        <span class="username">{{ contact.username }}</span>
+                    </div>
+                </h3>
+            </a>
+
+            <div class="board-cover-wrapper">
+                <a href="{{ path('profile', {'username': contact.username}) }}" title="{{ contact.username }}">
+                    {% if contact.photo %}
+                        <img class="board-cover" src="{{ contact.photo|replace({'origin': 'large'}) }}" alt="{{ contact.username }}" />
+                    {% else %}
+                        <div class="board-cover gender {% if contact.gender %}{{ contact.gender|lower }}{% endif %}"></div>
+                    {% endif %}
+                </a>
+
+                <span class="board-pin-count">
+                    <span class="value">{{ contact.moments|length }}</span> <span class="label">Moments</span>
+                </span>
+            </div>
+
+            <ul class="board-thumbs">
+                {% for i in 1..4 %}
+                    <li>{% if contact.moments[i].images[0] is defined %}<img src="{{ contact.moments[i].images[0]|replace({'origin': 'mini'}) }}>" alt="{{ contact.moments[i].name }}" />{% endif %}</li>
+                {% endfor %}
+            </ul>
+
+            <div class="board-actions">
+                <button type="button" data-user="{{ contact.username }}" class="btn btn-sm btn-info js-send-message">Send Message</button>
+
+                <button type="button" class="btn btn-sm {% if contact.is_friended %}btn-danger{% else %}btn-default{% endif %} js-contact-favorite"
+                    data-favorite-url="{{ path('api_contacts_add_username', {'username': contact.username}) }}"
+                    data-unfavorite-url="{{ path('api_contacts_delete_username', {'username': contact.username}) }}"
+                    data-is-favorite="{% if contact.is_friended %}true{% else %}false{% endif %}"
+                >
+                    {% if contact.is_friended %}Remove Contact{% else %}Add Contact{% endif %}
+                </button>
+            </div>
+        </div>
+    </div>
+{#{% endapply %}#}

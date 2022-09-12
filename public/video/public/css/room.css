@@ -1,0 +1,169 @@
+html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            background: #262626;
+        }
+
+        :focus {
+            outline: none;
+        }
+
+        .main {
+            height: 100%;
+            width: 100%;
+            display: table;
+        }
+
+        .container-fluid {
+            display: table-cell;
+            height: 100%;
+            vertical-align: middle;
+        }
+
+        .stage-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #131313;
+            height: 450px;
+            border-radius: 8px;
+        }
+
+        #my_videos {
+            display: flex;
+            background: #131313;
+            background-size: cover;
+            position: relative;
+            border-radius: 8px;
+            height: 100%;
+        }
+
+        #my_videos video {
+            width: 100%;
+            object-fit: fill;
+            position: relative;
+            border-radius: 8px;
+            border: 1px solid #000;
+        }
+
+        #videos-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        .media-container {
+            height: 100%;
+            width: 100% !important;
+            border: none !important;
+            background: transparent !important;
+        }
+
+        .media-container h2 {
+            display: none !important;
+        }
+
+        .media-box {
+            height: 100%;
+            margin: 0 !important;
+            border: 1px solid #ccc !important;
+        }
+
+        .media-box video {
+            height: 100%;
+        }
+
+        input {
+            max-width: 200px;
+        }
+
+        .media-controls .control,
+        .volume-control .control {
+            width: 22px !important;
+            height: 22px !important;
+            background-size: contain;
+        }
+
+        /* Card Style for login */
+
+        .card-signin {
+            border: 0;
+            border-radius: 1rem;
+            background-color: #3a3a3aa2;
+            box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
+            color: #fff;
+        }
+
+        .card-signin .card-title {
+            margin-bottom: 2rem;
+            font-weight: 300;
+            font-size: 1.5rem;
+        }
+
+        .card-signin .card-body {
+            padding: 2rem;
+        }
+
+        .form-signin {
+            width: 100%;
+        }
+
+        .form-signin .btn {
+            margin-top: 2.5rem;
+            font-size: 80%;
+            letter-spacing: .1rem;
+            font-weight: bold;
+            padding: 1rem;
+            transition: all 0.2s;
+        }
+
+        .form-control {
+            width: 100%;
+            max-width: unset;
+            color: #fff;
+            border: 1px solid #9090906b;
+            background-color: transparent;
+        }
+
+        .form-control:focus {
+            color: #fff;
+            border: none;
+            background-color: transparent;
+            box-shadow: none;
+            border: 1px solid #e8e4e499;
+        }
+
+        .form-label-group {
+            margin-bottom: 1rem;
+        }
+        .form-control:disabled, .form-control[readonly] {
+        	color: #aaa;
+		    background-color: transparent;
+		}
+		#videos-remote-container video{
+	        width:100%;
+	        height:120px;
+	        object-fit:fill;
+	        position:relative;
+	        float:right;
+	    }
+	    .join_request{
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			overflow: hidden;
+			width: 100%;
+	    }
+	    .modal-content {
+		    background-color: #2b2a2a;
+		}
+		.modal-footer {
+		    border-top:none !important;
+		}
+		.table {
+		    color: #ffffff;
+        }
+        .ngdialog.ngdialog-theme-default .ngdialog-content{
+            background:#272727 !important;
+        }

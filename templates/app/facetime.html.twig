@@ -1,0 +1,131 @@
+{% extends 'layout.html.twig' %}
+
+{% block scripts_after %}
+    <script type="text/javascript">
+
+    </script>
+
+{% endblock %}
+
+
+
+{% block content %}
+        <style>
+            .form-check-inline{
+                display: inline-block;
+            }
+            .text_red{color: red!important;}
+        </style>
+        <div class="container">
+            <div class="row" style="margin-top: 70px;margin-bottom: 70px">
+                <div class="col-md-5 ">
+                    <h1>60 Second Video Meet</h1>
+                    <p>
+                        Join our community and find a warm and meaningful connection!
+                    </p>
+                    <form id="frmFacetime" onsubmit="return checkForm();" action="{{ path('facetime_register') }}" method="post" style="margin: 15px;">
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Your Name:</label>
+                            <input type="text" class="form-control" name="name" placeholder="Full name"  value="{% if(people) %}{{ people.name }} {% endif %}" id="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Your email: (will not be displayed)</label>
+                            <input type="text" class="form-control" name="email" placeholder=""  value="{% if(people) %}{{ people.email }} {% endif %}" id="email" required>
+                        </div>
+                        <div class="form-group">
+							<div id="groub_gender">
+                            <label>Gender:</label>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" {% if(people) %} {% if (people.gender == 'Male') %}checked {% endif %}{% endif %} type="radio" name="gender" id="male" value="Male">
+                                <label class="form-check-label" for="male">Male</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" {% if(people and people.gender == 'Female') %}checked {% endif %} name="gender" id="female" value="Female">
+                                <label class="form-check-label" for="female">Female</label>
+                            </div>
+							<div id="error_gender" class="text_red" style="display:none; color:red;">Please select your gender.</div>
+							</div>		
+                            <div class="form-group" style="margin-top: 15px;">
+                                {% set birthday = app.request.request.get('birthday', {year:'', month:'', day:''}) %}
+                                <div class="row birthday-fields">
+                                    <div class="col-md-4">
+                                        <select id="birthday_year" name="birthday[year]" class="form-control input-lg">
+                                            <option value="">Year</option>
+                                            {% for year in range('now'|date('Y'), 'now'|date('Y') - 120) %}
+                                                <option value="{{ year }}" {% if year == birthday.year %}selected="selected"{% endif %}>{{ year }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select id="birthday_month"  name="birthday[month]" class="form-control input-lg">
+                                            <option value="">Month</option>
+                                            {% for month in 1..12 %}
+                                                <option value="{{ month }}" {% if month == birthday.month %}selected="selected"{% endif %}>{{ month }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select id="birthday_day"  name="birthday[day]" class="form-control input-lg">
+                                            <option value="">Day</option>
+                                            {% for day in 1..31 %}
+                                                <option value="{{ day }}" {% if day == birthday.day %}selected="selected"{% endif %}>{{ day }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <span class="help-block small" id="error_message"><span class="required">*</span> Select your birthday. User must 18 years old or older to participate.</span>
+                            </div>
+                            <div class="form-group" style="margin-top: 15px;">
+                                <button class="btn btn-lg btn-danger">I am ready!</button>
+                            </div>
+                        </div>
+                    </div>
+                    </form>
+                </div>
+                <div class="col-md-7">
+                    <img src="{{ asset('static/facetime/photo.png') }}"/>
+                </div>
+
+            </div>
+        </div>
+
+    <script>
+        require([
+            'underscore',
+            'jquery',
+            'jquery.view',
+            'jquery.bridget'
+        ], function() {
+            'use strict';
+
+
+        });
+    </script>
+    <script>
+        function checkForm() {
+            let ok = true;
+            let year = parseInt($('#birthday_year').val());
+            $('.input_error').removeClass('input_error');
+            $('.text_red').removeClass('text_red');
+			$('#error_gender').hide();
+
+            if(year + 18 > {{ 'now' | date('Y') }}){
+                $('#birthday_year').addClass('input_error');
+                $('#birthday_month').addClass('input_error');
+                $('#birthday_day').addClass('input_error');
+                $('#error_message').addClass('text_red');
+                ok = false;
+            }
+			
+			let gender = $('#groub_gender :checked').val();
+			 
+			if(!gender){
+				$('#error_gender').show();
+                ok = false;
+			}
+
+            return ok;
+        }
+    </script>
+{% endblock %}

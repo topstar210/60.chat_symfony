@@ -1,0 +1,276 @@
+{% extends 'layout.html.twig' %}
+
+{% block scripts_after %}
+    <script type="text/javascript">
+
+    </script>
+
+{% endblock %}
+
+
+
+{% block content %}
+        <style>
+            .form-check-inline{
+                display: inline-block;
+            }
+            .text_red{color: red!important;}
+        </style>
+    <div class="partyWrap">
+{#        <div class="mask"></div>#}
+        <div class="container" style="z-index: 10; position: relative;">
+            <div class="row" style="padding-top: 70px;padding-bottom: 70px;">
+                <div class="col-md-6 ">
+
+                    <div class="partyWrapFrom" >
+
+                        <h1 class="row">
+                            ChatApp Party
+                        </h1>
+
+                    <div class="row">
+                        <div class="col-md-12 form-group">
+                            <label>Event subject:</label>
+                            <div>
+                                {{ party.subject }}
+                            </div>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label>Time:</label>
+                            <div>
+                                <i class="fa fa-clock-o"></i>  <b>{{ party.eventdate|date("F jS, Y") }}</b> From {{ party.starttime }} to {{ party.endtime }}
+                            </div>
+                        </div>
+                        <div class="col-md-12"></div>
+                        <div class="col-md-6 form-group" >
+                            <label>Host name:</label>
+                            <div>
+                                <i class="fa fa-user"></i> {{ party.name }}
+                            </div>
+                        </div>
+
+
+
+
+                    </div>
+
+                    <div class="eventStatus">
+                        {%if(isTime == 3)%}
+                        <h2 class="btn btn-danger">Sorry, the event expired!</h2>
+                        {% elseif(isTime == 1) %}
+                            <h2 class="btn btn-primary">On schedule.</h2>
+                        {% else %}
+                            <h2 onclick="startCountdown()" class="btn btn-lg btn-success">Let start!</h2>
+                        {% endif %}
+                    </div>
+
+                    </div>
+                    <div class="partyWrapFrom">
+
+                        <h2>
+                            Your information:
+                        </h2>
+                        <div class="col-md-12"></div>
+                        <div class="col-md-6 form-group" >
+                            <label>Your Name:</label>
+                            <div>
+                                <i class="fa fa-user"></i> {{ partyMember.name }}
+                            </div>
+                        </div>
+                        <div class="col-md-6 form-group" >
+                            <label>Email:</label>
+                            <div>
+                                <i class="fa fa-user"></i> {{ partyMember.email }}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="col-md-6" >
+                    <div style="text-align: center;">
+                        <h1>Have all your guests meet each<br> other in 60 seconds sessions</h1>
+                        <img style="max-width:100%;" src="{{ asset('static/party/party') }}{{ random(1,5) }}.png"/>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div id="countDown" class="windowFix"  style="display: none;">
+        <div class="mask"></div>
+        <div class="countdownWrap" id="countdownWrap">
+            5
+        </div>
+        <div></div>
+    </div>
+
+    <div id="chatRoom" class="windowFix" style="display: none;">
+        <div class="mask"></div>
+        <div class="chatWindow">
+            <iframe id="chatIframe" src="" style="width: 100%; height: 100%"></iframe>
+        </div>
+    </div>
+	<style>
+		.content-main{margin:0!important}
+		.ftr {
+			margin-top:0px!important;
+		}
+	</style>
+    <style>
+        .windowFix{
+            position:absolute; top: 0; left: 0; width: 100%;height: 100%;
+        }
+        .mask{
+            position: fixed; top: 0; left: 0; width: 100%;height: 100%; background: #000; z-index: 999999; opacity: 0.8;
+        }
+        .countdownWrap {
+            background: #1B924A; width: 50px; height: 50px; border-radius: 50%; border: 2px solid #fff; z-index: 9999999;
+            position: absolute; top: 50%;left: 50%; margin-top: -25px; margin-left: -25px;
+            box-shadow: 0 0 5px rgb(240,102,0);
+            opacity: 0;
+            animation-name: bounceIn;
+            animation-duration: 450ms;
+            animation-timing-function: linear;
+            animation-fill-mode: forwards;
+            font-size: 14em;
+            text-align: center;
+            color: #fff;
+        }
+
+        .countdownWrapActive{
+            width: 300px; height: 300px;
+            margin-top: -150px; margin-left: -150px;
+
+        }
+
+        .chatWindow{
+            width: 700px;
+            height: 392px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            z-index: 99999999;
+            background: #fff;
+            margin-left: -350px;
+            margin-top: -50px;
+        }
+
+        @keyframes bounceIn{
+            0%{
+                opacity: 0;
+                transform: scale(0.3) translate3d(0,0,0);
+            }
+            50%{
+                opacity: 0.9;
+                transform: scale(1.1);
+            }
+            80%{
+                opacity: 1;
+                transform: scale(0.89);
+            }
+            100%{
+                opacity: 1;
+                transform: scale(1) translate3d(0,0,0);
+            }
+        }
+
+    </style>
+    <script>
+        require([
+            'underscore',
+            'jquery',
+            'jquery.view',
+            'jquery.bridget'
+        ], function() {
+            'use strict';
+
+
+        });
+    </script>
+    <script>
+        let count = 5;
+        let countDownInterval = null;
+
+        function checkForm() {
+            let ok = true;
+
+            let year = parseInt($('#birthday_year').val());
+            $('.input_error').removeClass('input_error');
+            $('.text_red').removeClass('text_red');
+            $('#error_gender').hide();
+
+            if(year + 18 > {{ 'now' | date('Y') }}){
+                $('#birthday_year').addClass('input_error');
+                $('#birthday_month').addClass('input_error');
+                $('#birthday_day').addClass('input_error');
+                $('#error_message').addClass('text_red');
+                ok = false;
+            }
+
+            let gender = $('#groub_gender :checked').val();
+
+            if(!gender){
+                $('#error_gender').show();
+                ok = false;
+            }
+
+            if(ok){
+
+                $.ajax({
+                    url: '{{ path('party_member') }}',
+                    data:$('#frmFacetime').serialize(),
+                    type: 'POST',
+                    dataType: 'json',
+                }).done(function(response) {
+                    console.log(response);
+                    if(response.meetup){
+
+                        document.location = response.meetup;
+                    }
+
+                });
+            }
+
+            return false;
+        }
+
+        function doMeetPeople() {
+            let url = 'https://chatapp.mobi/partMeetup?hash={{ partyMember.hash }}&room=';
+            $.ajax({
+                url: '{{ path('party_getchannel') }}?hash={{ partyMember.hash }}',
+                type: 'POST',
+                dataType: 'json',
+            }).done(function(response) {
+                console.log(response);
+                if(response.channel){
+                    let chat_url = url+response.channel.channel;
+                    document.location = chat_url;
+                }
+
+            });
+
+
+        }
+
+        function startCountdown() {
+            $('#countdownWrap').text(count);
+            $('#countDown').show();
+            $('#countdownWrap').addClass('countdownWrapActive');
+
+            countDownInterval = setInterval(function () {
+                count = count-1;
+                $('#countdownWrap').text(count);
+                if(count == 0){
+                    clearInterval(countDownInterval);
+                    count = 5;
+                    $('#countdownWrap').html('<table align="center" style="margin-top:90px;"><tr><td><div style="line-height: 30px;"><img src="/static/images/chatload.gif"/></div></td></tr><tr><td style="font-size: 16px; line-height: 25px;">Please wait a moment.</td></tr></table>')
+                    // $('#countDown').hide();
+
+                    doMeetPeople();
+
+
+                }
+            },1000)
+        }
+    </script>
+{% endblock %}

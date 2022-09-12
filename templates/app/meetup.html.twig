@@ -1,0 +1,455 @@
+{% extends 'layout.html.twig' %}
+
+{% block scripts_after %}
+    <link type="text/css" rel="stylesheet" href="{{asset('static')}}/css/videocall.css">
+    <script type="text/javascript" src="{{asset('static')}}/lib/jquery/dist/jquery.min.js"></script>
+    <script type="text/javascript" src="{{asset('static')}}/js/app/rtcMultiConnection.js"></script>
+
+    <script type="text/javascript">
+        let ssUrl = "http://localhost";
+
+        let io, connection, socket, _room, _my_id, partnerId, currChannelId;
+        let usersData = {};
+        let partnerData = {};
+        let channelList = [];
+        let ignoreList = [];
+        let iniFlag = false;
+        let nowChatting = false;
+        let waitFlag = false;
+        let accept_result_time = false;
+        let _intervalResearch = null;
+        let _interval = null;
+        let counter = 59;
+
+        require(['jquery', 'js/app/socket.io'],
+            function ($) {
+                io = require('js/app/socket.io');
+            });
+
+        $(document).ready(function () {
+            calculateVideoSize();
+            $('#countDown').show();
+            $('#countdownWrap').addClass('countdownWrapActive');
+            $('#countdownWrap').html('<table align="center" style="margin-top:90px;"><tr><td><div style="line-height: 30px;"><img src="/static/images/chatload.gif"/></div></td></tr><tr><td style="font-size: 16px; line-height: 25px;">Please wait a moment.</td></tr></table>');
+            setTimeout(function() {
+
+                connection = new RTCMultiConnection();
+                connection.socketURL = ssUrl + ':2087/';
+
+                _room = '{{ hash }}';
+                _my_id = create_UUID();
+
+                createChat(_room, 1);
+
+                $('#countDown').hide();
+            }, 3000)
+            
+            $(document).resize(function () {
+                calculateVideoSize();
+            })
+
+        });
+
+        function create_UUID() {
+            let dt = new Date().getTime();
+            let uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+                let r = (dt + Math.random() * 16) % 16 | 0;
+                dt = Math.floor(dt / 16);
+                return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+            return uuid;
+        }
+
+        function createChat(new_room, jFlag) {
+            if(!iniFlag) initialConnect();
+
+            if(jFlag == 2){
+                console.log("chat rejoin");
+                connection.rejoin(new_room);
+            } else {
+                console.log("chat open Or Join");
+                connection.openOrJoin(new_room);
+            }
+
+            socketActions();
+        }
+
+        function initialConnect(){
+            if(connection){
+                {# // disconnect with all users
+                connection.getAllParticipants().forEach(function(pid) {
+                    connection.disconnectWith(pid);
+                });
+
+                // stop all local cameras
+                connection.attachStreams.forEach(function(localStream) {
+                    localStream.stop();
+                }); #}
+                // close socket.io connection
+                //connection.closeSocket();
+            }
+
+            connection.enableFileSharing = false; // by default, it is "false".
+
+            connection.userid = _my_id;
+            connection.session = {
+                audio: true,
+                video: true,
+                data: true
+            };
+            connection.extra = {
+                username: "{{people.name}}",
+                usergender: "{{people.gender}}"
+            }
+            connection.sdpConstraints.mandatory = {
+                OfferToReceiveAudio: true,
+                OfferToReceiveVideo: true
+            };
+            connection.onstream = function (event) {
+                console.log("event", event);
+                console.log("type", event.type);
+                
+                if (event.type == 'local') {
+                    myLocalVideo = event.mediaElement;
+                    document.getElementById('videos-container').innerHTML = '';
+                    document.getElementById('videos-container').appendChild(event.mediaElement);
+                }
+
+                if (event.type == 'remote') {
+                    document.getElementById('videos-second-container').innerHTML = '';
+                    document.getElementById('videos-second-container').appendChild(event.mediaElement);
+                }
+            };
+            connection.onstreamended = function (event) {
+                console.log('onstreamended');
+                console.log(event);
+                clearInterval(_interval);
+            }
+            iniFlag = true;
+        }
+
+        function socketActions() {
+            connection.socket.on('users_state',function(data){
+                if(data.currUsers.length < 2) return;
+
+                $('.videoPeople').text(data.currUsers.length + " users online");
+                channelList = [];
+                for(let i = 0; i < data.currUsers.length; i++){
+                    sel_user = data.currUsers[i];
+                    if(_my_id != sel_user) {
+                        var tmpAry = [sel_user, _my_id].sort();
+                        var channelId = tmpAry[0]+ tmpAry[1];
+                        if(channelList.indexOf(channelId) == -1){
+                            channelList.push(channelId);
+                        }
+                    }
+                }
+                usersData = data.udata;
+
+                if(data.state == 'connect' && !nowChatting && !waitFlag){
+                    page_loading();
+                    setTimeout(function(){
+                        chatRandRequest();
+                    },1500);
+                }
+            });
+
+            connection.socket.on('chat_request', function(data){
+                if(currChannelId != data.channel && data.partnerId == _my_id && !nowChatting && !waitFlag){
+                    connection.socket.emit("chat_accept_result",{ ...data, res: "OK", jFlag: 1 });
+                    startVideoChat(data, 1);
+                } else {
+                    connection.socket.emit("chat_accept_result",{ ...data, res: "NOPE" });
+                }
+            });
+
+            connection.socket.on('continue_request', function(data){
+                if(currChannelId == data.channel && !nowChatting && waitFlag){
+                    connection.socket.emit("chat_accept_result",{ ...data, res: "OK", jFlag: 2 });
+                    startVideoChat(data, 2);
+                } else {
+                    connection.socket.emit("chat_accept_result",{ ...data, res: "NOPE" });
+                }
+            });
+
+            connection.socket.on('chat_accept_result', function(data){
+                if(data.myId == _my_id){
+                    if(data.res == "OK" && !accept_result_time){
+                        console.log("accept request is okay");
+                        setTimeout(function(){
+                            startVideoChat(data, data.jFlag);
+                        },500);
+                        accept_result_time = true;
+                    } else {
+                        console.log("accept is false", data);
+                        // $("#videos-second-container").html(""); 
+                    }
+                }
+            });
+
+            _intervalResearch = setInterval(function(){
+                if(channelList.length > 1){
+                    chatRandRequest();
+                }
+            },3000);
+        }
+
+        function startVideoChat(data, inFlag){
+            loading_false();
+            currChannelId = data.channel;
+            partnerId = currChannelId.replace(_my_id, '');
+            partnerData = usersData[partnerId];
+            if(partnerData){
+                $("#partner_name").html(partnerData.username);
+                $("#partner_gender").html(partnerData.usergender);
+                const imgname = (partnerData.usergender).toLowerCase() + "_" + (Math.floor(Math.random() * 5 +1))
+                $('#partner_avatar').html('<img src="{{asset('static')}}/facetime/'+imgname+'.png" width="100%" height="100%" />');
+            }
+            
+            clearInterval(_intervalResearch);
+            nowChatting = true;
+            waitFlag = true;
+            createChat(data.channel, inFlag);
+            start_countdown();
+        }
+
+        function start_countdown() {
+            counter = 7;
+            _interval = setInterval(function () {
+                console.log(counter);
+                $('.span_counter_label').html(counter);
+                if (counter <= 5) {
+                    $('.videoCounterWrap').addClass('videoCounterWrapActive');
+                }
+                if (counter <= 0) {
+                    clearInterval(_interval);
+                    $('#pName').text(partnerData.username);
+                    $('#chatRoom').show();
+                    $('.videoCounterWrap').removeClass('videoCounterWrapActive');
+                    nowChatting = false;
+                    waitFlag = true;
+                    accept_result_time = false;
+                }
+                counter--
+            }, 1000);
+        }
+
+        function chatRandRequest() {
+            if(channelList.length < 1) return;
+            
+            var filtered = channelList.filter(function(value){ 
+                if(ignoreList.indexOf(value) == -1) return true;
+            });
+
+            console.log('filtered channel',filtered);
+            if(filtered.length == 0){
+                page_loading(); return;
+            }
+            const random = Math.floor(Math.random() * filtered.length);
+            var randCid = filtered[random];
+            
+            // console.log(randCid, "selected random channel id");
+            if(ignoreList.indexOf(randCid) > -1) return;
+            // partner id
+            partnerId = randCid.replace(_my_id, '');
+            // send chat request
+            console.log('now chatting', nowChatting);
+            // console.log('channelList', channelList);
+            if(!nowChatting) sendChatRequest(_my_id,partnerId,randCid);
+        }
+
+        function sendChatRequest(myId,partnerId,channel) {
+            connection.socket.emit("chat_request", {
+                myId,partnerId,channel
+            });
+        }
+        
+        function continueChat(){
+            console.log('when continue, partner', partnerId);
+            connection.socket.emit("continue_request", {
+                myId: _my_id,partnerId,channel:currChannelId
+            });
+        }
+
+        function chatWithOther(){
+            page_loading();
+            manageCannel(currChannelId);
+            waitFlag = false;
+        }
+        
+        function manageCannel(channelId){
+            if(channelList.length > 1) {
+                chatRandRequest();
+                console.log(channelId, "added ignore list");
+                // add channel id into ignore list
+                if (ignoreList.indexOf(channelId) == -1) ignoreList.push(channelId);
+            } else {
+                page_loading();
+                setTimeout(function(){
+                    continueChat();
+                },60000);
+            }
+        }
+
+        function page_loading() {
+            $('#chatRoom').hide();
+            $('#titlePage').text('Waiting for the next meeting.');
+            $('#partnerLoading').show();
+            $('#partnerWrap').hide();
+            nowChatting = false;
+            waitFlag = false;
+            //$('#countDown').show();
+            //$('#countdownWrap').addClass('countdownWrapActive');
+            //$('#countdownWrap').html('<table align="center" style="margin-top:90px;"><tr><td><div style="line-height: 30px;"><img src="/static/images/chatload.gif"/></div></td></tr><tr><td style="font-size: 16px; line-height: 25px;">Please wait a moment.</td></tr></table>');
+        }
+        function loading_false() {
+            $('#chatRoom').hide();
+            $('#titlePage').html('Greetings!');
+            $('#partnerWrap').addClass('active');
+            $('#partnerWrap').show();
+            $('#partnerLoading').hide();
+            //$('#countDown').hide();
+        }
+
+        function calculateVideoSize() {
+            let w = parseFloat($('#big-container').width());
+            let h = 480 * w / 600;
+            $('#big-container').css({'height': h + 'px'});
+        }
+        
+    </script>
+
+{% endblock %}
+
+{% block content %}
+    <input type="hidden" id="currentChannel" value=""/>
+    <div class="container">
+        <div class="row" style="margin-top: 70px;margin-bottom: 70px">
+            <div class="col-md-5 ">
+                <h1 id="titlePage">Waiting for the next meeting.</h1>
+                <div class="row" style="margin-top: 50px;">
+                    <div class="col-xs-4 col-md-3">
+                        <div class="avatar" style="background-image:url('{{ people.avatar }}')"></div>
+                    </div>
+                    <div class="col-xs-8 col-md-9">
+                        <div class="box sb2" style=" max-width: 300px;">
+                            <div class="row">
+                                <div class="col-md-5">Your name:</div>
+                                <div class="col-md-7"><b>{{ people.name }}</b></div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-5">Gender:</div>
+                                <div class="col-md-7"><b>{{ people.gender }}</b></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="partnerWrap" class="" style="display:{% if not(partner) %}none{% endif %} ">
+                    <div class="row" style="margin-top: 50px;">
+
+                        <div class="col-xs-8 col-md-9">
+                            <div class="box sb1" style=" max-width: 300px;">
+                                <div class="row">
+                                    <div class="col-md-5">Partner:</div>
+                                    <div class="col-md-7"><b
+                                                id="partner_name">{% if partner %}{{ partner.name }}{% endif %}</b>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-5">Gender:</div>
+                                    <div class="col-md-7"><b
+                                                id="partner_gender">{% if partner %}{{ partner.gender }}{% endif %}</b>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-4 col-md-3">
+                            <div id="partner_avatar" class="avatar"
+                                 {% if partner %}style="background-image:url('{{ partner.avatar }}')"{% endif %}></div>
+                        </div>
+                    </div>
+
+                </div>
+                <div id="partnerLoading" style="display: {% if partner %}none{% endif %}">
+                    <img src="{{ asset('static/facetime/processing.gif') }}" style="max-width: 100%;"/>
+                </div>
+
+            </div>
+            <div class="col-md-7">
+                <div class="row">
+                    <div class="col-lg-12 mb-3">
+                        <div class="d-flex align-items-center">
+									<span style="border-radius:100%;background:#37b954;display:block;width:20px;height:20px;">
+										&nbsp;
+									</span><span style="margin-left:5px;color:#fff;"></span>
+
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div id="big-container"
+                             style="background:#37b954;background-size:cover;height:392px;width:100%;position:relative;display:flex;flex-direction:column;">
+                            <div class="videoPeople"
+                                 style="font-weight:bold;position: absolute; top:-20px; right:10px;">1 user online
+                            </div>
+                            <div id="videos-second-container" class="my_camera">
+
+                            </div>
+                            <div id="videos-container" class="my_camera">
+
+                            </div>
+                            <div class="my_camera"
+                                 style="border-radius:7px;position:absolute;left:10px;bottom:10px;">
+                                <div class="d-flex align-items-center justify-content-center">
+												<span class="videoCounterWrap">
+													<span class="span_counter_label">59</span>
+												</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <form method="post" id="private_room_form" action="">
+                    <input type="hidden" id="private_room_id" name="private_room_id"/>
+                    <input type="hidden" id="private_room_host" name="private_room_host"/>
+                </form>
+
+
+            </div>
+
+        </div>
+    </div>
+    <div id="countDown" class="windowFix" style="display: none;">
+        <div class="mask"></div>
+        <div class="countdownWrap" id="countdownWrap">
+            3
+        </div>
+        <div></div>
+    </div>
+    <div id="chatRoom" class="windowFix" style="display: none;">
+        <div class="mask"></div>
+        <div class="chatWindow">
+            {# {% if(app.user) %}
+
+                <div style="padding: 50px 20px; max-width: 500px; margin:auto; font-size:2em;" class="text-center">
+                    <div style="margin-bottom:20px;">
+                        <img src="{{ s3url(app.user.photo, 'medium', true) }}"
+                             class="img-circle {% if not app.user.photo %}gender {{ app.user.gender|lower }}{% endif %}"
+                             title="{{ app.user.username }}"/>
+                    </div>
+                    Would you like to connect with the other User?<br><br>
+                    <a class="btn btn-success btn-lg" onclick="backToWait()">Yes</a>
+                    <a class="btn btn-danger btn-lg" href="{{ path('dashboard') }}">No</a>
+                </div>
+            {% else %} #}
+                <div style="padding: 100px 20px; max-width: 500px; margin:auto; font-size:2em;" class="text-center">
+                    Would you like to connect again with <span id="pName"></span>?<br><br>
+                    <a id="btnContinue" class="btn btn-success btn-lg"
+                       data-partner="{% if partner %}{{ partner.hash }}{% endif %}" 
+                       onclick="continueChat()">Yes</a>
+                    <a class="btn btn-danger btn-lg" onclick="chatWithOther()">No</a>
+                </div>
+            {# {% endif %} #}
+        </div>
+    </div>
+{% endblock %}

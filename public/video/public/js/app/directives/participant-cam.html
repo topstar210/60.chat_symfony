@@ -1,0 +1,11 @@
+<div style="display:flex;flex-direction:row;margin-right:10px;position:relative;"
+    ng-style="{width : participant.item.length * 13 + '%'}">
+
+    <div ng-repeat="item in participant.item" style="position: relative;width:100%;">
+        <track-item track="track" ng-repeat="track in item.tracks" local="participant.local">
+        </track-item>
+        <span class="bottom-panel"><i class="fa "
+                ng-class="{'fa-user' : item.type == 'camera', 'fa-desktop' : item.type == 'screen'}"></i>
+            {{participant.identity | characters : 10}}</span>
+    </div>
+</div>

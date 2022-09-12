@@ -1,0 +1,208 @@
+{% extends 'layout.html.twig' %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+    <div class="login-model register-model">
+        <div class="contents">
+            <form action="{{ path('register') }}" class="login-form registerForm {% if error %}has-error{% endif %}" method="post">
+                <input type="hidden" id="latitude" name="latitude" value="{{ app.request.request.get('latitude') }}" />
+                <input type="hidden" id="longitude" name="longitude" value="{{ app.request.request.get('longitude') }}" />
+
+                <h1>Join ChatApp <span class="ajax-loader" style="top: 30px; display: none;"></span></h1>
+
+                <div class="login-fields">
+                    <div class="col-sm-12">
+                    <div class="login-error" style="clear: both;margin: 0 0 14px 0px;">{% if error %}{{ error }}{% endif %}</div>
+                    </div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <input type="text" name="name" value="{{ app.request.request.get('name') }}" class="form-control input-lg" placeholder="Name" required="required" />
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-lock"></i></span>
+                            <input type="text" name="username" value="{{ app.request.request.get('username') }}" class="form-control input-lg" placeholder="Username" required="required" />
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
+                            <input type="email" name="email" value="{{ app.request.request.get('email') }}" class="form-control input-lg" placeholder="Email" required="required" />
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-addon"><i class="fa fa-asterisk"></i></span>
+                            <input type="password" name="password" class="form-control input-lg" placeholder="Password" required="required" />
+                        </div>
+                        <div class="form-group">
+                            {% set birthday = app.request.request.get('birthday', {year:'', month:'', day:''}) %}
+                            <div class="birthday-fields">
+                                <select name="birthday[year]" class="form-control input-lg" required="required">
+                                    <option value="">Year</option>
+                                    {% for year in range('now'|date('Y'), 'now'|date('Y') - 120) %}
+                                        <option value="{{ year }}" {% if year == birthday.year %}selected="selected"{% endif %}>{{ year }}</option>
+                                    {% endfor %}
+                                </select>
+                                <select name="birthday[month]" class="form-control input-lg" required="required">
+                                    <option value="">Month</option>
+                                    {% for month in 1..12 %}
+                                        <option value="{{ month }}" {% if month == birthday.month %}selected="selected"{% endif %}>{{ month }}</option>
+                                    {% endfor %}
+                                </select>
+                                <select name="birthday[day]" class="form-control input-lg" required="required">
+                                    <option value="">Day</option>
+                                    {% for day in 1..31 %}
+                                        <option value="{{ day }}" {% if day == birthday.day %}selected="selected"{% endif %}>{{ day }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <span class="help-block small"><span class="required">*</span> Select your birthday. User must be older than 18 years old.</span>
+                        </div>
+                        <div class="divider vertical"></div>
+                    </div>
+                    <div class="col-sm-1 col-xs-12"></div>
+                    <div class="col-sm-6 col-xs-12">
+                        <div class="form-group">
+                            <input type="text" name="phone_number" value="{{ app.request.request.get('phone_number') }}" class="form-control input-lg" placeholder="Phone number" required="required" />
+                        </div>
+                        <div class="form-group">
+                            <select type="text" id="select_country" class="form-control input-lg">
+                                <option value="">-- Country --</option>
+                                {% set countryCode = 'US' %}
+                                {% for code, country in countries %}
+                                    <option value="{{ country }}" data-code="{{ code }}" {% if countryCode == code %}selected="selected"{% endif %}>{{ country }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <select type="text" id="select_region" class="form-control input-lg">
+                                <option value="">-- Region --</option>
+                                {% if countryCode %}
+                                    {% for region in regions[countryCode] %}
+                                        <option value="{{ region }}">{{ region }}</option>
+                                    {% endfor %}
+                                {% endif %}
+                            </select>
+                        </div>
+
+                        <input type="hidden" name="profile[region]" id="profile_region" />
+
+                        <script type="text/javascript">
+                            require(['jquery'],
+                            function($) {
+                                var regions = {{ regions|json_encode|raw }};
+
+                                $('#select_country').on('change', function() {
+                                    $('#select_region').html('<option value="">-- Region --</option>');
+
+                                    if (regions[$(this).find('option:selected').data('code')]) {
+                                        $.each(regions[$(this).find('option:selected').data('code')], function (k, v) {
+                                            $('#select_region').append('<option value="' + v + '">' + v + '</option>');
+                                        });
+                                    }
+
+                                    $('#profile_region').val($('#select_country').val());
+                                });
+
+                                $('#select_region').on('change', function() {
+                                    $('#profile_region').val($('#select_region').val() + ', ' + $('#select_country').val());
+                                });
+                            });
+                        </script>
+
+                        <div class="form-group">
+                            <input type="text" name="promo_code" value="{{ app.request.request.get('promo_code') }}" class="form-control input-lg" placeholder="Promo code (optional)" />
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <div class="login-footer">
+                    <div class="login-footer-buttons">
+
+                        <button type="submit" class="btn btn-success">Sign Up</button>
+                        <button type="button" name="get-location" class="btn btn-info">Get My Location</button>
+                    </div>
+
+                    <p>Already a member? <a href="{{ path('login') }}">Login</a></p>
+                </div>
+            </form>
+
+            <div class="form-terms-of-service">
+                Creating an account means you're agree with ChatApp's <a href="{{ path('tos') }}" target="_blank">Terms of Service</a>.
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        require(['jquery'],
+        function($) {
+            /* get current geo location */
+            $('.registerForm button[name=get-location]').on('click', function () {
+                if ("geolocation" in navigator) {
+                    // check if geolocation is supported/enabled on current browser
+                    navigator.geolocation.getCurrentPosition(
+                        function success(position) {
+                            // for when getting location is a success
+                            $('.registerForm input[name=latitude]').val(position.coords.latitude);
+                            $('.registerForm input[name=longitude]').val(position.coords.longitude);
+                            alert("Success to get location");
+                        },
+                        function error(error_message) {
+                            // for when getting location results in an error
+                            console.error('An error has occured while retrieving location', error_message)
+                            ipLookUp()
+                        }
+                    );
+                } else {
+                    // geolocation is not supported
+                    // get your location some other way
+                    console.log('geolocation is not enabled on this browser')
+                    ipLookUp()
+                }
+            });
+
+
+            function ipLookUp () {
+                $('.ajax-loader').show();
+                $.ajax('http://ip-api.com/json')
+                    .then(
+                        function success(response) {
+                            $('.ajax-loader').hide();
+                            console.log('User\'s Location Data is ', response);
+                            $('.registerForm input[name=latitude]').val(response.lat);
+                            $('.registerForm input[name=longitude]').val(response.lon);
+
+                            $('#select_country').val(response.country);
+                            $('#select_country').trigger('change');
+
+                            if(response.country =='United States' && response.regionName){
+                                $('#select_region').val(response.regionName);
+                            }
+
+
+                            // console.log('User\'s Country', response.country);
+                            // getAdress(response.lat, response.lon)
+                        },
+
+                        function fail(data, status) {
+                            $('.ajax-loader').hide();
+                            console.log('Request failed.  Returned status of',
+                                status);
+                        }
+                    );
+            }
+            function getAddress (latitude, longitude) {
+                $.ajax('https://maps.googleapis.com/maps/api/geocode/json?latlng=' + latitude + ',' + longitude + '&key=AIzaSyBOCyx8cFlkv7cY6A4PhMyjdki2ZH_xja4')
+                    .then(
+                        function success (response) {
+                            console.log('User\'s Address Data is ', response)
+                        },
+                        function fail (status) {
+                            console.log('Request failed.  Returned status of',
+                                status)
+                        }
+                    )
+            }
+
+        });
+    </script>
+{% endblock %}

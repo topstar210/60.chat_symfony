@@ -1,0 +1,58 @@
+{% extends 'layout.html.twig' %}
+
+{% block footer %}{% endblock %}
+
+{% block scripts_after %}
+
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDUz28cRHkiTj0gw4ec80EAxys-gZzb894"></script>
+    <script type="text/javascript">
+        require(['js/app/my-clubs']);
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="location-board-background"></div>
+        <div class="location-board-wrapper">
+            <div class="location-board-header">
+                <h1 class="clubHeader"><i class="fa fa-users"></i> Clubs
+                    <div class="menutabs clubtab">
+                        <ul>
+                            <li><a href="{{ path('clubs') }}" ><span>All Clubs</span></a></li>
+                            <li><a href="{{ path('my-clubs') }}" class="active"> <span>My Clubs</span></a></li>
+                            <li><a href="#" data-toggle="modal" data-target="#filterClubModal" title="Filter"><i class="fa fa-filter"></i></a></li>
+                            <li><a href="#" data-toggle="modal" data-target="#addClubModal" title="Add Club" class="btnCircle"><i class="fa fa-plus"></i></a></li>
+                        </ul>
+                    </div>
+                </h1>
+
+            </div>
+
+            <div id="clubMessage" style="display: none"></div>
+
+            <div class="masonry-wrapper location-board-masonry">
+                <div class="masonry"></div>
+            </div>
+
+            <div class="masonry-loadmore text-center">
+                {% set url = path('api_clubs_search', {
+                    'sort': app.request.get('sort'),
+                    'query': app.request.get('query'),
+                    'username': app.user.username
+                }) %}
+                <a href="#" class="js-loadmore-clubs" data-url="{{ url }}">
+                    <span class="badge">Load more</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="map-canvas"></div>
+
+    {% include 'partials/club_tmpl_js.twig' %}
+    {% include 'partials/club_modal_add.twig' %}
+    {% include 'partials/club_modal_view.twig' %}
+    {% include 'partials/club_modal_edit.twig' %}
+    {% include 'partials/club_modal_delete.twig' %}
+    {% include 'partials/club_modal_filter.twig' %}
+{% endblock %}

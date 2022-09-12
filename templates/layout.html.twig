@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ChatApp - {% block title 'Chat and meet new people' %}</title>
+
+    <meta charset="utf-8" />
+    <meta name="description" content="Be Friendly On ChatApp, Social App for your Andriod and iOS devices.">
+    <meta name="keywords" content="ChatApp, Social App">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="cache-control" content="max-age=0" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <meta http-equiv="pragma" content="no-cache" />
+    <script type='text/javascript' src='https://platform-api.sharethis.com/js/sharethis.js#property=6134f7a4713d01001282af82&product=sop' async='async'></script>
+    {% block head_style %}
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+
+        {% block stylesheets %}
+            {{ encore_entry_link_tags('app') }}
+        {% endblock %}
+    {% endblock %}
+
+    {% block script %}
+        {% block scripts_before %}{% endblock %}
+
+        {% set compressed = compressed is defined ? compressed : true %}
+        {% set config_extend %}
+            require({
+                baseUrl: {{ asset('static')|json_encode|raw }}
+            });
+            {{ config_extend|default('') }}
+        {% endset %}
+        {% if compressed and requirejs_build_exists() %}
+            <script type="text/javascript">
+                var require = (function(){
+                    var r=function(c){m(r.c,c)};r.c={};function m(a,b){
+                        for (var i in b)b[i]!=null&&b[i].toString()==='[object Object]'?m(a[i]||(a[i]={}),b[i]):a[i]=b[i]}
+                    return r;
+                }());
+                {{ config_extend|raw }}
+                require = require.c;
+            </script>
+            <script type="text/javascript" src="{{ asset(get_requirejs_build_path()) }}"></script>
+        {% else %}
+            <script type="text/javascript" src="{{ asset('static/lib/r.js/require.js') }}"></script>
+            <script type="text/javascript">
+                {{ get_requirejs_config()|raw }}
+            </script>
+            <script type="text/javascript">
+                {{ config_extend|raw }}
+            </script>
+        {% endif %}
+
+        <script type="text/javascript">
+            require(['jquery'],
+            function($) {
+                if (/iPad/i.test(navigator.userAgent)) {
+                    jQuery('html').addClass('tablet');
+                } else if (/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+                    jQuery('html').addClass('mobile');
+                } else {
+                    jQuery('html').addClass('desktop');
+                }
+            });
+        </script>
+
+        <script type="text/javascript">
+            {%- set userUsername = null -%}
+            {%- set userPhoto = null -%}
+            {%- set userGender = null -%}
+            {%- set userToken = null -%}
+            {%- if is_granted('ROLE_USER') -%}
+                {%- set userUsername = app.user.username -%}
+                {%- set userPhoto = app.user.photo -%}
+                {%- set userGender = app.user.gender -%}
+                {%- set userToken = app.user.token -%}
+            {%- endif -%}
+            var ChatApp = {
+                baseUrl: {{ app.request.getSchemeAndHttpHost()|json_encode|raw }},
+                userUsername: '{{ userUsername }}',
+                userPhoto: '{{ userPhoto }}',
+                userGender: '{{ userGender }}',
+                userToken: '{{ userToken }}'
+            };
+        </script>
+
+        {%- if is_granted('ROLE_USER') -%}
+            <script type="text/javascript">
+                require(['js/app/faye']);
+            </script>
+        {%- endif -%}
+
+        <script type="text/javascript">
+            require([
+                'js/app/main',
+                'js/app/common',
+                'js/app/moment',
+
+            ]);
+        </script>
+
+        {% block scripts_after %}{% endblock %}
+    {% endblock %}
+
+    <script type="text/javascript">
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-46311862-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+</head>
+<body class="{% if is_granted('ROLE_USER') %}loggedin{% else %}loggedout{% endif %} {{ app.request.get('_route') }}">
+
+    {% block header %}
+        <header class="hdr">
+            <div class="header-inner">
+                <h1 class="logo sprites-chatapp-text"><a href="{{ path('homepage') }}">ChatApp</a></h1>
+
+                <div class="hdr-nav-toggle" id="hdr-nav-toggle"></div>
+
+                {% if is_granted('ROLE_USER') %}
+                    <a class="hdr-nav-moment" id="hdr-nav-moment" title="Add Moments">
+                        <span class="unread"></span>
+                        <i class="fa fa-plus-square"></i>
+                    </a>
+                    <a class="hdr-nav-messages" id="hdr-nav-messages" title="Chat">
+                        <span class="unread"></span>
+                        <i class="fa fa-comments"></i>
+                    </a>
+                {% endif %}
+
+                <div class="hdr-nav-wrap">
+                    <div class="hdr-nav">
+                        {% if is_granted('ROLE_USER') %}
+                            <ul class="nav-list nav-primary" role="navigation">
+                                <li class="nav-item nav-facetime {% if app.request.get('_route') == 'speed-date' %}active{% endif %}"><a href="{{ path('facetime') }}" class="nav-link"><i style="color: red" class="fa fa-video-camera"></i> 60 Second Video Meet <span  class="videoPeople badge badge-primary"  style="display: none"></span></a></li>
+                                <li class="nav-item {% if app.request.get('_route') == 'party' %}active{% endif %}"><a href="{{ path('facetime_party') }}" class="nav-link"><span class="party_icon"></span>Party</a></li>
+                                <li class="nav-item {% if app.request.get('_route') == 'moments' %}active{% endif %}"><a href="{{ path('moments') }}" class="nav-link">Moments</a></li>
+                                <li class="nav-item {% if app.request.get('_route') == 'radar' %}active{% endif %}"><a href="{{ path('radar') }}" class="nav-link">People</a></li>
+                                <li class="nav-item {% if app.request.get('_route') == 'clubs' %}active{% endif %}"><a href="{{ path('clubs') }}" class="nav-link">Clubs</a></li>
+                            </ul>
+
+                            <ul class="nav-list nav-utility">
+                                <li class="nav-item nav-user">
+                                    <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">
+                                        <img src="{{ s3url(app.user.photo, 'mini', true) }}" class="img-circle {% if not app.user.photo %}gender {{ app.user.gender|lower }}{% endif %}" title="{{ app.user.username }}" />
+                                        <span class="caret"></span>
+                                    </a>
+                                    <ul class="dropdown-menu pull-right">
+                                        <li><a href="{{ path('profile', {'username': app.user.username}) }}">My Profile</a></li>
+                                        <li><a href="{{ path('profileType', {'username': app.user.username, 'type': 'contacts'}) }}">My Contacts</a></li>
+                                        <li><a href="{{ path('settings') }}">Settings</a></li>
+
+                                        <li class="divider"></li>
+                                        <li><a href="{{ path('logout') }}">Sign Out</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item nav-search" id="nav-search" role="search">
+                                    <form id="form-hdr-search" class="form-hdr-search" action="{{ path('moments') }}" method="GET" autocomplete="off">
+                                        <label class="btn-search" for="form-hdr-search-input">Search</label>
+                                        <input type="text" id="form-hdr-search-input" placeholder="Search" name="query" autocomplete="off" spellcheck="false" />
+                                    </form>
+                                </li>
+                            </ul>
+                        {% else %}
+                            <ul class="nav-list nav-primary" role="navigation">
+                                <li class="nav-item nav-facetime {% if app.request.get('_route') == 'speed-date' %}active{% endif %}"><a href="{{ path('facetime') }}" class="nav-link"><i style="color: red" class="fa fa-video-camera"></i> 60 Second Video Meet <span  class="videoPeople badge badge-primary" style="display: none"></span></a></li>
+                                <li class="nav-item nav-about {% if app.request.get('_route') == 'party' %}active{% endif %}"><a href="{{ path('facetime_party') }}" class="nav-link"><span class="party_icon"></span>Party</a></li>
+                                <li class="nav-item nav-about {% if app.request.get('_route') == 'about' %}active{% endif %}"><a href="{{ path('about') }}" class="nav-link">About</a></li>
+                                <li class="nav-item nav-terms {% if app.request.get('_route') == 'tos' %}active{% endif %}"><a href="{{ path('tos') }}" class="nav-link">Terms</a></li>
+                            </ul>
+
+                            <ul class="nav-list nav-utility">
+                                <li class="nav-item nav-user">
+                                    {% if app.request.get('_route') != 'register' %}
+                                        <a class="btn btn-success nav-signin" href="{{ path('register') }}">Register</a>
+                                    {% endif %}
+                                    {% if app.request.get('_route') != 'login' %}
+                                        <a class="btn btn-default nav-signin" href="{{ path('login') }}">Sign In</a>
+                                    {% endif %}
+                                </li>
+                            </ul>
+                        {% endif %}
+
+                        <ul class="nav-list nav-secondary">
+                            <li class="nav-item"><a href="https://itunes.apple.com/us/app/chatapp-meet-share-socialize/id767196673?mt=8" class="nav-link" target="_blank">iOS</a></li>
+                            <li class="nav-item"><a href="https://play.google.com/store/apps/details?id=com.guiang.chatapp&hl=en" class="nav-link" target="_blank">Android</a></li>
+                            <li class="nav-item"><a href="https://www.facebook.com/TheChatApp" class="nav-link" target="_blank">Facebook</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+    {% endblock %}
+
+    <div class="content-main">
+        {% block content %}{% endblock %}
+    </div>
+
+    {% block footer %}
+        <footer class="ftr">
+            <div class="ftr-inner">
+                <section class="ftr-section ftr-mobile">
+                    <header class="ftr-header">
+                        <h5 class="ftr-hed">ChatApp for Mobile</h5>
+                    </header>
+                    <div class="ftr-content">
+                        <p>Like ChatApp? Take it with you wherever you go.</p>
+                        <a id="btn-ftr-iphone-link" class="ftr-btn ftr-mobile-link" target="_blank" href="https://itunes.apple.com/us/app/chatapp-meet-share-socialize/id767196673?mt=8">Download on the App Store
+{#                            <span class="ftr-mobile-img"></span></a>#}
+                        <a id="btn-ftr-iphone-link" class="ftr-btn ftr-mobile-link" target="_blank" href="https://play.google.com/store/apps/details?id=com.guiang.chatapp&hl=en">Download on the Google Play</a>
+{#                        <a id="btn-ftr-iphone-link" class="ftr-btn ftr-mobile-link" target="_blank" href="http://www.amazon.com/Guiang-Inc-ChatApp/dp/B00H1O4UCW/ref=sr_1_2?ie=UTF8&qid=1387580253&sr=8-2&keywords=chatapp">Download on the Amazon Market</a>#}
+                    </div>
+                </section>
+
+                <section class="ftr-section ftr-social">
+                    <header class="ftr-header">
+                        <h5 class="ftr-hed">ChatApp everywhere</h5>
+                    </header>
+                    <div class="ftr-content">
+                        <ul class="ftr-social-list">
+                            <li class="ftr-social-list-item facebook"><a class="ftr-social-list-link" target="_blank" href="https://facebook.com/TheChatApp">Like us on Facebook</a></li>
+                            {#
+                            <li class="ftr-social-list-item twitter"><a class="ftr-social-list-link" target="_blank" href="#">Follow us on Twitter</a></li>
+                            <li class="ftr-social-list-item tumblr"><a class="ftr-social-list-link" target="_blank" href="#">Follow us on Tumblr</a></li>
+                            <li class="ftr-social-list-item google"><a class="ftr-social-list-link" target="_blank" href="#">ChatApp on Google+</a></li>
+                            <li class="ftr-social-list-item rss"><a class="ftr-social-list-link" target="_blank" href="#">ChatApp Top Moments RSS</a></li>
+                            #}
+                        </ul>
+                    </div>
+                </section>
+            </div>
+
+            <div class="ftr-nav">
+                <div class="ftr-inner">
+                    <ul class="ftr-nav-list nav-primary">
+                        <li class="ftr-nav-list-item"><a class="ftr-nav-list-link" href="{{ path('about') }}">About</a></li>
+                        <li class="ftr-nav-list-item"><a class="ftr-nav-list-link" href="{{ path('tos') }}">Terms</a></li>
+                        <li class="ftr-nav-list-item"><a class="ftr-nav-list-link" href="http://glabs.la/contact" target="_blank">Contact</a></li>
+                    </ul>
+
+                    <ul class="ftr-nav-list nav-secondary">
+                        <li class="ftr-nav-list-item">&copy; <span id="footer-copyright-year">{{ "now"|date("Y") }}</span> ChatApp Inc</li>
+                    </ul>
+                </div>
+            </div>
+        </footer>
+    {% endblock %}
+
+    {% block scroll_to_top %}
+        <a class="scroll-to-top" href="#top"><i class="fa fa-arrow-up"></i></a>
+    {% endblock %}
+
+    <script type="text/javascript">
+        require(['jquery', 'igrowl'],
+        function($) {
+            $.iGrowl.prototype.defaults.placement.x = 'right';
+            $.iGrowl.prototype.defaults.placement.y = 'bottom';
+
+            {% for flashMessage in app.session.flashbag.get('error') %}
+                $.iGrowl({
+                    type: 'error-sat',
+                    message: '{{ flashMessage }}',
+                    icon: 'fa-times-circle-o',
+                    delay:5000
+                })
+            {% endfor %}
+            {% for flashMessage in app.session.flashbag.get('success') %}
+                $.iGrowl({
+                    type: 'success-sat',
+                    message: '{{ flashMessage }}',
+                    icon: 'fa-check-circle-o',
+                    delay:3000
+                })
+            {% endfor %}
+
+
+            // function updateCount60() {
+            //     $.ajax({
+            //         url: '/60online',
+            //         dataType: 'jsonp',
+            //         success: function(data) {
+            //             console.log("data",data);
+            //             $('.videoPeople').show();
+            //             var total = parseInt(data.online);
+            //             if(total <2){
+            //                 var text = total + " user online";
+            //             }else{
+            //                 var text = total + " users online";
+            //             }
+            //             $('.videoPeople').text(text);
+            //         },
+            //         type: 'GET'
+            //     });
+            //
+            // }
+            // setInterval(updateCount60,10000);
+        });
+
+        function getTimezoneOffset() {
+            var offset = new Date().getTimezoneOffset();
+            offset = ((offset<0? '+':'-')+ parseInt(Math.abs(offset/60)));
+            return offset;
+        }
+        function formatAMPM(date) {
+            var hours = date.getHours();
+            var minutes = date.getMinutes();
+            var ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            minutes = minutes < 10 ? '0'+minutes : minutes;
+            var strTime = hours + ':' + minutes + ' ' + ampm;
+            return strTime;
+        }
+    </script>
+
+    {% if is_granted('ROLE_USER') %}
+        {% include 'partials/messages.html.twig' %}
+        {% include 'partials/momment_modal_add.twig' %}
+        {% include 'partials/confirm_modal.twig' %}
+    {% endif %}
+</body>
+</html>

@@ -1,0 +1,24 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+	
+	# RewriteCond %{HTTPS} off
+	# RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+    #<IfModule mod_vhost_alias.c>
+    #    RewriteBase /
+    #</IfModule>
+
+    RewriteRule ^media/(.*)$ /api/image?filename=$1 [R,L]
+
+    RewriteRule ^api/image/(.*)?(.*)$        /api/image?filename=$1&$2 [R,L]
+    RewriteRule ^api/get_file_url/(.*)?(.*)$ /api/get_file_url?filename=$1&$2 [R,L]
+
+    RewriteRule ^index_dev.php/api/image/(.*)?(.*)$        /index_dev.php/api/image?filename=$1&$2 [R,L]
+    RewriteRule ^index_dev.php/api/get_file_url/(.*)?(.*)$ /index_dev.php/api/get_file_url?filename=$1&$2 [R,L]
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} !^/staging/(.*)$
+
+    RewriteRule ^(.*)$ index.php [QSA,L]
+</IfModule>

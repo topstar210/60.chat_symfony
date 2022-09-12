@@ -1,0 +1,9 @@
+<div>
+    <div style="width:100%;height:100%;display:contents;position: relative;transition:width 0.3s ease 0s, height 0.3s ease 0s;"
+        class="broadcast-screen">
+        <img src="slide/1.jpg" style="width:100%;height:100%;position:absolute;" id="slide" ng-if="!selected_layout" />
+        <record-cam-item track="track.track_name" ng-repeat="track in broadcast_tracks" type="track.type"
+            item-style="track.style" layout="layout" session="session">
+        </record-cam-item>
+    </div>
+</div>

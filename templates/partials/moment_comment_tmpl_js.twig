@@ -1,0 +1,19 @@
+<script type="text/template" id="moment-comment-template">
+{#{% apply spaceless %}#}
+    <li class="pin-comment" <% if (index>=3) { %>style="display:none"<% } %>>
+        <div class="commenter-thumb">
+            <a href="{{ path('profile', {'username': 'USERNAME'}) }}">
+                <% if (!_.isUndefined(photo) && !_.isNull(photo)) { %>
+                    <img src="<%=photo.replace("/origin/", "/mini/")%>" alt="<%=user%>" />
+                <% } else { %>
+                    <div class="gender <% if (gender) { %><%=gender.toLowerCase()%><% } %>"></div>
+                <% } %>
+            </a>
+        </div>
+        <div class="commenter-text">
+            <a href="{{ path('profile', {'username': 'USERNAME'}) }}"><%=user%></a>
+            <p><%=comment%>&nbsp;</p>
+        </div>
+    </li>
+{#{% endapply %}#}
+</script>

@@ -1,0 +1,160 @@
+<link rel="stylesheet" href="css/presenter.css">
+<link rel="stylesheet" href="css/admin.css">
+<link rel="stylesheet" href="css/responsive.css">
+<div class="presenter-main">
+    <div class="container-fluid" ng-show="!logined">
+        <div id="login-section">
+            <div class="row">
+                <div class="offset-md-3 col-md-6 offset-xl-4 col-xl-4">
+                    <div class="card card-signin my-5">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">Admin Join</h5>
+                            <form class="form-signin">
+                                <div class="form-label-group">
+                                    <label for="adminName">Session ID</label>
+                                    <input type="text" id="session_id" class="form-control" name="adminName"
+                                        placeholder="Session ID" ng-model="session_link">
+                                </div>
+                                <div class="form-label-group">
+                                    <label for="inputPassword">Session Password</label>
+                                    <input type="password" class="form-control" ng-model="session_password" required>
+                                </div>
+                                <button class="btn btn-lg btn-success btn-block text-uppercase" id="join-btn"
+                                    ng-click="join()" type="button">
+                                    Join
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <header class="header_styled" ng-if="logined">
+        <div class="header_inner">
+            <div class="header_logo">
+            </div>
+            <div class="header_title">
+                <p class="mb-0"> Admin View {{meeting_title}}</p>
+            </div>
+            <div class="header_right">
+                <div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <div class="studio">
+        <aside class="layout_control_aside">
+            <div class="layout_manager d-flex ml-2">
+
+                <span class="layout-item" ng-click="set_layout(1)"><img src="layout_manager/1.png" /></span>
+                <span class="layout-item" ng-click="set_layout(2)"><img src="layout_manager/2.png" /></span>
+                <span class="layout-item" ng-click="set_layout(3)"><img src="layout_manager/3.png" /></span>
+                <span class="layout-item" ng-click="set_layout(4)"><img src="layout_manager/4.png" /></span>
+                <span class="layout-item" ng-click="set_layout(5)"><img src="layout_manager/5.png" /></span>
+                <span class="layout-item" ng-click="set_layout(6)"><img src="layout_manager/5.png" /></span>
+                <span class="layout-item" ng-click="set_layout(7)"><img src="layout_manager/7.png" /></span>
+                <span class="layout-item" ng-click="set_layout(8)"><img src="layout_manager/8.png" /></span>
+            </div>
+        </aside>
+        <main class="studio_left">
+            <div class="studio_left_absolute">
+                <div class="studio_video_row">
+                    <div class="studio_videowrap" ng-style="{width : width + 'px', height : height + 'px'}">
+                        <div id="videos-container">
+                            <broadcast-screen layout="layout" tracks="selected_tracks" status="meeting_status">
+                            </broadcast-screen>
+                        </div>
+                    </div>
+                </div>
+                <div class="studio_cardRow">
+                    <div class="row w-100 ml-0 mr-0 mt-3">
+                        <div class="col-md-12" style="display: flex;align-items: center;justify-content: flex-start;">
+                            <div id="videos-remote-container" class="my_camera"
+                                style="display:flex;width:100%;overflow-y:auto;">
+                                <admin-participant-cam participant="participant"
+                                    ng-repeat="participant in participants">
+                                </admin-participant-cam>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="studio_control">
+                    <div class="control-row">
+                        <div class="control-row-wrap">
+                            <div class="controls-wrap">
+                                <button class="control-item" ng-click="mic_control()">
+                                    <div class="controlbutton_iconwrap">
+
+                                        <span class="control-layout" aria-label="Mute mic" ng-if="!muted">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
+                                                viewBox="0 0 24 24" fill="#505868">
+                                                <path
+                                                    d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z">
+                                                </path>
+                                                <path d="M0 0h24v24H0z" fill="none"></path>
+                                            </svg>
+                                        </span>
+                                        <span class="control-layout" aria-label="Unmute mic" ng-if="muted">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                viewBox="0 0 24 24" fill="#505868">
+                                                <path d="M0 0h24v24H0zm0 0h24v24H0z" fill="none"></path>
+                                                <path
+                                                    d="M19 11h-1.7c0 .74-.16 1.43-.43 2.05l1.23 1.23c.56-.98.9-2.09.9-3.28zm-4.02.17c0-.06.02-.11.02-.17V5c0-1.66-1.34-3-3-3S9 3.34 9 5v.18l5.98 5.99zM4.27 3L3 4.27l6.01 6.01V11c0 1.66 1.33 3 2.99 3 .22 0 .44-.03.65-.08l1.66 1.66c-.71.33-1.5.52-2.31.52-2.76 0-5.3-2.1-5.3-5.1H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c.91-.13 1.77-.45 2.54-.9L19.73 21 21 19.73 4.27 3z">
+                                                </path>
+                                            </svg>
+                                        </span>
+
+                                    </div>
+                                    <span>
+                                        Mute
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <aside class="studio_right">
+            <div class="RightAside">
+                <div class="row w-100 mr-0 ml-0">
+                    <div class="col-md-12">
+                        <div class="chat-box">
+                            <div class="chat-content">
+                                <div class="container message-container">
+                                    <div class="row w-100 mr-0 ml-0 mt-1" ng-repeat="content in chat_contents">
+                                        <div class="col-md-12 d-flex"
+                                            ng-class="{'justify-content-end' : content.message_type == 1, 'justify-content-start' : content.message_type == 0}">
+                                            <span>{{content.name}}</span>
+                                        </div>
+                                        <div class="col-md-12 d-flex"
+                                            ng-class="{'justify-content-end' : content.message_type == 1, 'justify-content-start' : content.message_type == 0}">
+                                            <span
+                                                style="background:#ececec;padding:2px;color:#000;border-radius: 5px;">{{content.text}}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <input type="text" class="form-control mt-2" ng-model="input_chat"
+                                ng-enter="press_entered()" />
+                            <button type="button" class="btn btn-secondary mt-2 mb-2" style="float:right;"
+                                ng-click="send()">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+
+
+    
+    <div class="row mt-2" style="height:150px;display:none;">
+        <div class="col-md-4">
+            <canvas id="canvas" width="1920" height="1080"
+                style="width:100%;height:100%;border-radius:8px;padding:20px;background:#252c33;display:none;"></canvas>
+        </div>
+    </div>
+</div>

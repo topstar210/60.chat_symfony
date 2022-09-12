@@ -1,0 +1,69 @@
+{% extends 'layout.html.twig' %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+    <div class="container-fluid" style="background-color: #444444;">
+        <div class="row">
+            <div class="col-md-offset-1 col-md-4 col-sm-12 text-center">
+                <h1>Find new people around your location, chat with them, and share your interest</h1>
+            </div>
+            <div class="col-md-2 col-sm-12">
+            </div>
+            <div class="col-md-5 col-sm-12 text-right">
+                <ul class="list-inline" style="display: flex;">
+                    <li><a class="download-btn applestore" href="https://itunes.apple.com/us/app/chatapp-meet-share-socialize/id767196673?mt=8" target="_blank" title="App Store" style="height:70px; background-size: contain;"></a></li>
+                    <li><a class="download-btn googleplay" href="https://play.google.com/store/apps/details?id=com.guiang.chatapp&hl=en" target="_blank" title="Google Play" style="height:70px; background-size: contain;"></a></li>
+                    {# <li><a class="download-btn androidmarket" href="http://www.amazon.com/Guiang-Inc-ChatApp/dp/B00H1O4UCW/ref=sr_1_2?ie=UTF8&qid=1387580253&sr=8-2&keywords=chatapp" target="_blank" title="Android Market"></a></li> #}
+                </ul>
+            </div>
+{#            <div class="col-md-offset-1 col-md-10 col-sm-12 text-center">#}
+{#                <h1>Find new people around your location, chat with them, and share your interest</h1>#}
+
+{#                <ul class="list-inline">#}
+{#                    <li><a class="download-btn applestore" href="https://itunes.apple.com/us/app/chatapp-meet-share-socialize/id767196673?mt=8" target="_blank" title="App Store"></a></li>#}
+{#                    <li><a class="download-btn googleplay" href="https://play.google.com/store/apps/details?id=com.guiang.chatapp&hl=en" target="_blank" title="Google Play"></a></li>#}
+{#                    #}{# <li><a class="download-btn androidmarket" href="http://www.amazon.com/Guiang-Inc-ChatApp/dp/B00H1O4UCW/ref=sr_1_2?ie=UTF8&qid=1387580253&sr=8-2&keywords=chatapp" target="_blank" title="Android Market"></a></li> #}
+{#                </ul>#}
+{#            </div>#}
+        </div>
+    </div>
+    <div class="container-fluid" style="background-color: #00226a">
+        <div class="row">
+            <div class="col-md-offset-1 col-md-7" style="padding-top: 1rem; padding-bottom: 1rem;">
+                <div class="row">
+                    <div class="col-md-4">
+                        <img src="{{ asset('static/images/screenshots/image01.png') }}" style="width: 100%;" />
+                    </div>
+                    <div class="col-md-4">
+                        <img src="{{ asset('static/images/screenshots/image02.png') }}" style="width: 100%;" />
+                    </div>
+                    <div class="col-md-4">
+                        <img src="{{ asset('static/images/screenshots/image03.png') }}" style="width: 100%;" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container-fluid" style="background-color: white">
+        <div class="row">
+            <div class="col-md-offset-1 col-md-7" style="padding-top: 1rem; padding-bottom: 1rem;">
+                <div class="row">
+                    <div class="col-md-4">
+                        <img src="{{ asset('static/images/screenshots/image04.png') }}" style="width: 100%;" />
+                    </div>
+                    <div class="col-md-4">
+                        <img src="{{ asset('static/images/screenshots/image05.png') }}" style="width: 100%;" />
+                    </div>
+                    <div class="col-md-4">
+                        <img src="{{ asset('static/images/screenshots/image06.png') }}" style="width: 100%;" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="screenshots">
+    </div>
+{% endblock %}

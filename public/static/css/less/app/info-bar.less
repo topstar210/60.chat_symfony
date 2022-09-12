@@ -1,0 +1,135 @@
+.info-bar-base {
+    background-color: #ececec;
+    background: -webkit-linear-gradient(#f3f3f3, #e5e5e5);
+    background: linear-gradient(#f3f3f3, #e5e5e5);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
+    clear: both;
+    color: #333;
+    height: 44px;
+    line-height: 44px;
+    max-width: 10000px;
+    position: relative;
+    border-left: 1px solid #d4d4d4;
+    border-left: 1px solid rgba(0, 0, 0, 0.17);
+    border-right: 1px solid rgba(0, 0, 0, 0.17);
+    border-left: 1px solid #d4d4d4;
+    border-radius: 6px;
+}
+
+.info-bar-base .info-bar-header-text {
+    color: #555;
+    font-size: 16px;
+    font-weight: normal;
+    padding: 0 26px 0 13px;
+}
+
+.info-bar-base > ul > li:first-child a.active {
+    box-shadow: -1px 0 3px rgba(0, 0, 0, 0.05) inset;
+}
+
+.info-bar-base > ul > li:last-child a.active {
+    box-shadow: 1px 0 3px rgba(0, 0, 0, 0.05) inset;
+}
+
+.info-bar-base > ul > li a {
+    box-shadow: 0 0 1px rgba(255, 255, 255, 0.9) inset;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+    color: #777;
+    display: block;
+    font-weight: bold;
+    padding: 1px 20px 0;
+}
+
+.info-bar-base > ul > li a:hover,.info-bar-base > ul > li a.active {
+    background-color: #f9f9f9;
+    background: -webkit-linear-gradient(#fff, #f4f4f4);
+    background: linear-gradient(#fff, #f4f4f4);
+    color: #333;
+}
+
+.info-bar-base > ul > li a:active {
+    color: #000;
+}
+
+.info-bar-base.info-bar {
+    background: none;
+    background-color: #fff;
+}
+
+.info-bar-base.info-bar > ul > li:first-child a.active {
+    box-shadow: none;
+}
+
+.info-bar-base.info-bar > ul > li:last-child a.active {
+    box-shadow: none;
+}
+
+.info-bar-base.info-bar > ul > li a:hover,.info-bar-base.info-bar li a.active {
+    background: none;
+}
+
+.search-filter-wrapper {
+    padding: 5px;
+    width: 100%;
+    line-height: 2;
+}
+
+.board .search-filter-wrapper {
+    margin: -10px;
+}
+
+.search-filter-wrapper h2 {
+    background: #f1f1f1;
+    font-size: 24px;
+    padding: 10px 10px 5px;
+    margin: -3px -5px 10px;
+}
+
+.search-filter-wrapper ul {
+    float: left;
+    padding: 0 14px;
+    margin: 0;
+    list-style: none;
+    height: 100%;
+    white-space: nowrap;
+}
+
+.search-filter-wrapper ul:nth-child(2) {
+    border-right: 1px solid #ddd;
+    padding-right: 14px;
+}
+
+.search-filter-wrapper li {
+    font-weight: bold;
+    padding: 0;
+    margin-bottom: 5px;
+}
+
+.search-filter-wrapper li input[name^=age_] {
+    float: left;
+    width: 48%;
+}
+
+.search-filter-wrapper li input[name=age_to] {
+    float: right;
+}
+
+.search-filter-wrapper .submit {
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+}
+
+/*
+.search-content-wrapper .no-results {
+    font-size: 18px;
+    font-weight: normal;
+    margin: 54px auto;
+    text-align: center;
+    width: 50%;
+}
+
+.search-content-wrapper .search-term {
+    font-weight: bold;
+}
+*/

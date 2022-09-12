@@ -1,0 +1,57 @@
+<script type="text/template" id="contact-template">
+{#{% apply spaceless %}#}
+    <div class="board <% if (is_online) { %>is-online<% } %>" data-username="USERNAME">
+        <div class="online-status" title="Online">
+            <em class="fa fa-circle"></em>
+        </div>
+        <div class="board-link-wrapper">
+            <a href="{{ path('profile', {'username': 'USERNAME'}) }}">
+                <h3 class="board-name">
+                    <div class="title">
+                        <% if (distance>0) { %>
+                            <div class="pull-right">
+                                <em class="fa fa-map-marker"></em> <%=parseFloat(distance).toFixed(2)%> {% if app.user.distanceBy == constant('App\\Entity\\User::DISTANCEBY_MILES') %}m{% else %}km{% endif %}
+                            </div>
+                        <% } %>
+
+                        <span class="username"><%=username%></span>
+                    </div>
+                    {# <h4 class="fullname"><% if (name) { %><%=name%><% } else { %><%=username%><% } %></h4> #}
+                </h3>
+            </a>
+
+            <div class="board-cover-wrapper">
+                <a href="{{ path('profile', {'username': 'USERNAME'}) }}" title="<%=username%>">
+                    <% if (!_.isNull(photo) && photo.length>0) { %>
+                        <img class="board-cover" src="<%=photo.replace("/origin/", "/large/")%>" alt="<%=username%>" />
+                    <% } else { %>
+                        <div class="board-cover gender <% if (gender) { %><%=gender.toLowerCase()%><% } %>"></div>
+                    <% } %>
+                </a>
+
+                <span class="board-pin-count">
+                    <span class="value"><%=moments.length%></span> <span class="label">Moments</span>
+                </span>
+            </div>
+
+            <ul class="board-thumbs">
+                <% for (var i=0; i<4; i++) { %>
+                    <li><% if (!_.isUndefined(moments[i])) { %><img src="<%=moments[i].image.replace("/origin/", "/mini/")%>" alt="<%=moments[i].name%>" /><% } %></li>
+                <% } %>
+            </ul>
+
+            <div class="board-actions">
+                <button type="button"  data-user="<%=username%>" class="btn btn-sm btn-info js-send-message">Send Message</button>
+
+                <button type="button" class="btn btn-sm <% if (is_friended) { %>btn-danger<% } else { %>btn-default<% } %> js-contact-favorite"
+                    data-favorite-url="{{ path('api_contacts_add_username', {'username': 'USERNAME'}) }}"
+                    data-unfavorite-url="{{ path('api_contacts_delete_username', {'username': 'USERNAME'}) }}"
+                    data-is-favorite="<% if (is_friended) { %>true<% } else { %>false<% } %>"
+                >
+                    <% if (is_friended) { %>Remove Contact<% } else { %>Add Contact<% } %>
+                </button>
+            </div>
+        </div>
+    </div>
+{#{% endapply %}#}
+</script>

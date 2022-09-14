@@ -274,7 +274,12 @@ httpApp = httpApp.listen(process.env.PORT || PORT, process.env.IP || "0.0.0.0", 
 // socket.io codes goes below
 let onlineUsers = [];
 let usersData = {};
-let io = ioServer(httpApp);
+let io = ioServer(httpApp, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
 io.on('connection', function(socket) {
     RTCMultiConnectionServer.addSocket(socket, config);
     
@@ -292,7 +297,7 @@ io.on('connection', function(socket) {
     console.log(socket.userid, ' connects.');
     onlineUsers.push(socket.userid);
     usersData[socket.userid] = params.extra;
-    io.emit('users_state', { 
+    socket.emit('users_state', { 
         currUsers: onlineUsers,
         state: 'connect',
         userid: socket.userid,
@@ -319,7 +324,7 @@ io.on('connection', function(socket) {
         const ind = onlineUsers.indexOf(socket.userid);
         onlineUsers.splice(ind, 1);
         delete usersData[socket.userid];
-        io.emit('users_state', { 
+        socket.emit('users_state', { 
             currUsers: onlineUsers,
             state: 'disconnect',
             userid: socket.userid,

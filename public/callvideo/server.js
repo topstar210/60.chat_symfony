@@ -1,5 +1,5 @@
-// http://127.0.0.1:2087
-// http://localhost:2087
+// http://127.0.0.1:8443
+// http://localhost:8443
 
 const fs = require('fs');
 const path = require('path');
@@ -10,7 +10,7 @@ const ioServer = require('socket.io');
 const RTCMultiConnectionServer = require('rtcmulticonnection-server');
 const { join } = require('path');
 
-var PORT = 2087;
+var PORT = 8443;
 var isUseHTTPs = false;
 
 const jsonPath = {
@@ -28,7 +28,7 @@ config = getBashParameters(config, BASH_COLORS_HELPER);
 
 // if user didn't modifed "PORT" object
 // then read value from "config.json"
-if(PORT === 2087) {
+if(PORT === 8443) {
     PORT = config.port;
 }
 if(isUseHTTPs === false) {

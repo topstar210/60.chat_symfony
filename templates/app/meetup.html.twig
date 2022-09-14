@@ -15,7 +15,6 @@
         let ignoreList = [];
         let iniFlag = false;
         let nowChatting = false;
-        let waitFlag = false;
         let accept_result_time = false;
         let _intervalResearch = null;
         let _interval = null;
@@ -34,7 +33,7 @@
             setTimeout(function() {
 
                 connection = new RTCMultiConnection();
-                connection.socketURL = ssUrl + ':2087/';
+                connection.socketURL = ssUrl + ':8443/';
 
                 _room = '{{ hash }}';
                 _my_id = create_UUID();
@@ -42,7 +41,7 @@
                 createChat(_room, 1);
 
                 $('#countDown').hide();
-            }, 3000)
+            }, 3500)
             
             $(document).resize(function () {
                 calculateVideoSize();
@@ -116,7 +115,7 @@
                 }
 
                 if (event.type == 'remote') {
-                    document.getElementById('videos-second-container').innerHTML = '';
+                    document.getElementById('videos-second-container').innerHTML = event.mediaElement;
                     document.getElementById('videos-second-container').appendChild(event.mediaElement);
                 }
             };
@@ -146,16 +145,16 @@
                 }
                 usersData = data.udata;
 
-                if(data.state == 'connect' && !nowChatting && !waitFlag){
+                if(data.state == 'connect' && !nowChatting){
                     page_loading();
                     setTimeout(function(){
-                        chatRandRequest();
-                    },1500);
+                        if(!nowChatting) chatRandRequest();
+                    },1200);
                 }
             });
 
             connection.socket.on('chat_request', function(data){
-                if(currChannelId != data.channel && data.partnerId == _my_id && !nowChatting && !waitFlag){
+                if(currChannelId != data.channel && data.partnerId == _my_id && !nowChatting){
                     connection.socket.emit("chat_accept_result",{ ...data, res: "OK", jFlag: 1 });
                     startVideoChat(data, 1);
                 } else {
@@ -164,7 +163,7 @@
             });
 
             connection.socket.on('continue_request', function(data){
-                if(currChannelId == data.channel && !nowChatting && waitFlag){
+                if(currChannelId == data.channel && !nowChatting){
                     connection.socket.emit("chat_accept_result",{ ...data, res: "OK", jFlag: 2 });
                     startVideoChat(data, 2);
                 } else {
@@ -177,25 +176,26 @@
                     if(data.res == "OK" && !accept_result_time){
                         console.log("accept request is okay");
                         setTimeout(function(){
-                            startVideoChat(data, data.jFlag);
+                            if(!nowChatting) startVideoChat(data, data.jFlag);
                         },500);
                         accept_result_time = true;
                     } else {
-                        console.log("accept is false", data);
+                        console.log("accept is false");
                         // $("#videos-second-container").html(""); 
                     }
                 }
             });
 
             _intervalResearch = setInterval(function(){
-                if(channelList.length > 1){
+                if(channelList.length > 1 && !nowChatting){
                     chatRandRequest();
                 }
-            },3000);
+            },5000);
         }
 
         function startVideoChat(data, inFlag){
             loading_false();
+            nowChatting = true;
             currChannelId = data.channel;
             partnerId = currChannelId.replace(_my_id, '');
             partnerData = usersData[partnerId];
@@ -207,14 +207,12 @@
             }
             
             clearInterval(_intervalResearch);
-            nowChatting = true;
-            waitFlag = true;
             createChat(data.channel, inFlag);
             start_countdown();
         }
 
         function start_countdown() {
-            counter = 7;
+            counter = 8;
             _interval = setInterval(function () {
                 console.log(counter);
                 $('.span_counter_label').html(counter);
@@ -223,12 +221,18 @@
                 }
                 if (counter <= 0) {
                     clearInterval(_interval);
-                    $('#pName').text(partnerData.username);
-                    $('#chatRoom').show();
+                    
+                    $("#videos-second-container video").hide();
                     $('.videoCounterWrap').removeClass('videoCounterWrapActive');
+                    //$('#pName').text(partnerData.username);
+                    //$('#chatRoom').show();
+                    $('#titlePage').text('Waiting for the next meeting.');
+                    $('#partnerLoading').show();
+                    $('#partnerWrap').hide();
+                    
                     nowChatting = false;
-                    waitFlag = true;
                     accept_result_time = false;
+                    manageCannel(currChannelId);
                 }
                 counter--
             }, 1000);
@@ -274,19 +278,18 @@
         function chatWithOther(){
             page_loading();
             manageCannel(currChannelId);
-            waitFlag = false;
         }
         
         function manageCannel(channelId){
             if(channelList.length > 1) {
-                chatRandRequest();
+                if (!nowChatting) chatRandRequest();
                 console.log(channelId, "added ignore list");
                 // add channel id into ignore list
                 if (ignoreList.indexOf(channelId) == -1) ignoreList.push(channelId);
             } else {
                 page_loading();
                 setTimeout(function(){
-                    continueChat();
+                    if(!nowChatting) continueChat();
                 },60000);
             }
         }
@@ -297,7 +300,7 @@
             $('#partnerLoading').show();
             $('#partnerWrap').hide();
             nowChatting = false;
-            waitFlag = false;
+            accept_result_time = false;
             //$('#countDown').show();
             //$('#countdownWrap').addClass('countdownWrapActive');
             //$('#countdownWrap').html('<table align="center" style="margin-top:90px;"><tr><td><div style="line-height: 30px;"><img src="/static/images/chatload.gif"/></div></td></tr><tr><td style="font-size: 16px; line-height: 25px;">Please wait a moment.</td></tr></table>');
@@ -308,6 +311,7 @@
             $('#partnerWrap').addClass('active');
             $('#partnerWrap').show();
             $('#partnerLoading').hide();
+            $("#videos-second-container video").show();
             //$('#countDown').hide();
         }
 

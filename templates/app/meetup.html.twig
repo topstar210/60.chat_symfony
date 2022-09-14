@@ -190,7 +190,7 @@
                 if(channelList.length > 1 && !nowChatting){
                     chatRandRequest();
                 }
-            },5000);
+            },3000);
         }
 
         function startVideoChat(data, inFlag){
@@ -212,7 +212,7 @@
         }
 
         function start_countdown() {
-            counter = 8;
+            counter = 60;
             _interval = setInterval(function () {
                 console.log(counter);
                 $('.span_counter_label').html(counter);

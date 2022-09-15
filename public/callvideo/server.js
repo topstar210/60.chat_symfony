@@ -296,11 +296,10 @@ io.on('connection', function(socket) {
         socket.broadcast.emit(params.socketCustomEvent, message);
     });
 
-
     console.log(socket.userid, ' connects.');
     onlineUsers.push(socket.userid);
     usersData[socket.userid] = params.extra;
-    socket.emit('users_state', { 
+    io.emit('users_state', { 
         currUsers: onlineUsers,
         state: 'connect',
         userid: socket.userid,
@@ -309,16 +308,11 @@ io.on('connection', function(socket) {
 
     socket.on("chat_request", function(data){
         socket.join(data.channel);
-        console.log('chat_request', data.channel);
+        // console.log('chat request', data.channel);
         socket.broadcast.emit("chat_request", data);
     });
-    socket.on("continue_request", function(data){
-        console.log('continue_request', data.channel);
-        socket.join(data.channel);
-        socket.broadcast.to(data.channel).emit("continue_request", data);
-    });
     socket.on("chat_accept_result", function(data){
-        console.log('chat_accept_result', data.channel);
+        // console.log('chat accept result', data.channel);
         socket.join(data.channel);
         socket.broadcast.to(data.channel).emit("chat_accept_result", data);
     })
@@ -327,7 +321,7 @@ io.on('connection', function(socket) {
         const ind = onlineUsers.indexOf(socket.userid);
         onlineUsers.splice(ind, 1);
         delete usersData[socket.userid];
-        socket.emit('users_state', { 
+        io.emit('users_state', { 
             currUsers: onlineUsers,
             state: 'disconnect',
             userid: socket.userid,

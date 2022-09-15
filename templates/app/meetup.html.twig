@@ -14,11 +14,11 @@
         let channelList = [];
         let ignoreList = [];
         let iniFlag = false;
+        let socFlag = false;
+        let counterFlag = false;
         let nowChatting = false;
-        let accept_result_time = false;
-        let _intervalResearch = null;
-        let _interval = null;
-        let counter = 59;
+        let _researchInterval = null;
+        let _countdownInterval = null;
 
         require(['jquery', 'js/app/socket.io'],
             function ($) {
@@ -38,7 +38,7 @@
                 _room = '{{ hash }}';
                 _my_id = create_UUID();
 
-                createChat(_room, 1);
+                createChat(_room);
 
                 $('#countDown').hide();
             }, 3500)
@@ -59,35 +59,16 @@
             return uuid;
         }
 
-        function createChat(new_room, jFlag) {
+        function createChat(room_id) {
             if(!iniFlag) initialConnect();
 
-            if(jFlag == 2){
-                console.log("chat rejoin");
-                connection.rejoin(new_room);
-            } else {
-                console.log("chat open Or Join");
-                connection.openOrJoin(new_room);
-            }
+            console.log("chatroom open Or Join");
+            connection.openOrJoin(room_id);
 
-            socketActions();
+            if(!socFlag) socketActions();
         }
 
         function initialConnect(){
-            if(connection){
-                {# // disconnect with all users
-                connection.getAllParticipants().forEach(function(pid) {
-                    connection.disconnectWith(pid);
-                });
-
-                // stop all local cameras
-                connection.attachStreams.forEach(function(localStream) {
-                    localStream.stop();
-                }); #}
-                // close socket.io connection
-                //connection.closeSocket();
-            }
-
             connection.enableFileSharing = false; // by default, it is "false".
 
             connection.userid = _my_id;
@@ -109,20 +90,26 @@
                 console.log("type", event.type);
                 
                 if (event.type == 'local') {
-                    myLocalVideo = event.mediaElement;
                     document.getElementById('videos-container').innerHTML = '';
+                    event.mediaElement.removeAttribute('controls');
                     document.getElementById('videos-container').appendChild(event.mediaElement);
                 }
 
                 if (event.type == 'remote') {
+                    start_countdown();
                     document.getElementById('videos-second-container').innerHTML = "";
+                    event.mediaElement.removeAttribute('controls');
                     document.getElementById('videos-second-container').appendChild(event.mediaElement);
                 }
             };
             connection.onstreamended = function (event) {
                 console.log('onstreamended');
-                console.log(event);
-                clearInterval(_interval);
+                if(partnerId == event.userid) {
+                    console.log('partner disconnect!');
+                    page_loading();
+                    researchPartner();
+                    manageCannel(currChannelId);
+                }
             }
             iniFlag = true;
         }
@@ -149,23 +136,15 @@
                     page_loading();
                     setTimeout(function(){
                         if(!nowChatting) chatRandRequest();
-                    },1200);
+                    },1500);
                 }
             });
 
             connection.socket.on('chat_request', function(data){
-                if(currChannelId != data.channel && data.partnerId == _my_id && !nowChatting){
-                    connection.socket.emit("chat_accept_result",{ ...data, res: "OK", jFlag: 1 });
-                    startVideoChat(data, 1);
-                } else {
-                    connection.socket.emit("chat_accept_result",{ ...data, res: "NOPE" });
-                }
-            });
-
-            connection.socket.on('continue_request', function(data){
-                if(currChannelId == data.channel && !nowChatting){
-                    connection.socket.emit("chat_accept_result",{ ...data, res: "OK", jFlag: 2 });
-                    startVideoChat(data, 2);
+                if(data.partnerId == _my_id && !nowChatting){
+                    connection.socket.emit("chat_accept_result",{ ...data, res: "OK" });
+                    console.log("chat request is okay");
+                    startVideoChat(data);
                 } else {
                     connection.socket.emit("chat_accept_result",{ ...data, res: "NOPE" });
                 }
@@ -173,29 +152,33 @@
 
             connection.socket.on('chat_accept_result', function(data){
                 if(data.myId == _my_id){
-                    if(data.res == "OK" && !accept_result_time){
+                    if(data.res == "OK" && !nowChatting){
+                        nowChatting = true;
                         console.log("accept request is okay");
-                        setTimeout(function(){
-                            if(!nowChatting) startVideoChat(data, data.jFlag);
-                        },500);
-                        accept_result_time = true;
+                        if(data.channel != currChannelId){
+                            setTimeout(function(){
+                                startVideoChat(data);
+                            },2000);
+                        }
                     } else {
                         console.log("accept is false");
-                        // $("#videos-second-container").html(""); 
                     }
                 }
             });
 
-            _intervalResearch = setInterval(function(){
-                if(channelList.length > 1 && !nowChatting){
-                    chatRandRequest();
-                }
+            researchPartner();
+            socFlag = true;
+        }
+        
+        function researchPartner(){
+            _researchInterval = setInterval(function(){
+                if(channelList.length > 1 && !nowChatting) chatRandRequest();
             },3000);
         }
 
-        function startVideoChat(data, inFlag){
-            loading_false();
+        function startVideoChat(data){
             nowChatting = true;
+            setTimeout(function() { if(!counterFlag) nowChatting = false; },2500);
             currChannelId = data.channel;
             partnerId = currChannelId.replace(_my_id, '');
             partnerData = usersData[partnerId];
@@ -206,33 +189,26 @@
                 $('#partner_avatar').html('<img src="{{asset('static')}}/facetime/'+imgname+'.png" width="100%" height="100%" />');
             }
             
-            clearInterval(_intervalResearch);
-            createChat(data.channel, inFlag);
-            start_countdown();
+            clearInterval(_researchInterval);
+            createChat(data.channel);
         }
 
         function start_countdown() {
-            counter = 60;
-            _interval = setInterval(function () {
+            let counter = 10;
+            loading_false();
+            counterFlag = true;
+            _countdownInterval = setInterval(function () {
                 console.log(counter);
                 $('.span_counter_label').html(counter);
                 if (counter <= 5) {
                     $('.videoCounterWrap').addClass('videoCounterWrapActive');
                 }
                 if (counter <= 0) {
-                    clearInterval(_interval);
-                    
-                    $("#videos-second-container video").hide();
-                    $('.videoCounterWrap').removeClass('videoCounterWrapActive');
-                    //$('#pName').text(partnerData.username);
-                    //$('#chatRoom').show();
-                    $('#titlePage').text('Waiting for the next meeting.');
-                    $('#partnerLoading').show();
-                    $('#partnerWrap').hide();
-                    
-                    nowChatting = false;
-                    accept_result_time = false;
-                    manageCannel(currChannelId);
+                    counter = 0;
+                    clearInterval(_countdownInterval);
+                    connection.close();
+
+                    page_loading();
                 }
                 counter--
             }, 1000);
@@ -255,23 +231,17 @@
             // console.log(randCid, "selected random channel id");
             if(ignoreList.indexOf(randCid) > -1) return;
             // partner id
-            partnerId = randCid.replace(_my_id, '');
+            const randPid = randCid.replace(_my_id, '');
             // send chat request
             console.log('now chatting', nowChatting);
             // console.log('channelList', channelList);
-            if(!nowChatting) sendChatRequest(_my_id,partnerId,randCid);
+            if(!nowChatting) sendChatRequest(_my_id,randPid,randCid);
         }
 
         function sendChatRequest(myId,partnerId,channel) {
+            if(nowChatting) return;
             connection.socket.emit("chat_request", {
                 myId,partnerId,channel
-            });
-        }
-        
-        function continueChat(){
-            console.log('when continue, partner', partnerId);
-            connection.socket.emit("continue_request", {
-                myId: _my_id,partnerId,channel:currChannelId
             });
         }
 
@@ -281,29 +251,34 @@
         }
         
         function manageCannel(channelId){
+            if(nowChatting) return;
             if(channelList.length > 1) {
-                if (!nowChatting) chatRandRequest();
-                console.log(channelId, "added ignore list");
+                console.log("added ignore list", channelId);
                 // add channel id into ignore list
                 if (ignoreList.indexOf(channelId) == -1) ignoreList.push(channelId);
-            } else {
+
+                chatRandRequest();
+            } else if(channelList.length == 1) {
                 page_loading();
+                console.log("will connect after 60 secs.");
                 setTimeout(function(){
-                    if(!nowChatting) continueChat();
-                },60000);
-            }
+                    const firstCid = channelList[0];
+                    const firstPid = firstCid.replace(_my_id, '');
+                    sendChatRequest(_my_id, firstPid, firstCid);
+                },6000);
+            } else page_loading();
         }
 
         function page_loading() {
+            nowChatting = false;
+            counterFlag = false;
+            $("#videos-second-container").html("");
+            $('.videoCounterWrap').removeClass('videoCounterWrapActive');
             $('#chatRoom').hide();
             $('#titlePage').text('Waiting for the next meeting.');
             $('#partnerLoading').show();
             $('#partnerWrap').hide();
-            nowChatting = false;
-            accept_result_time = false;
-            //$('#countDown').show();
-            //$('#countdownWrap').addClass('countdownWrapActive');
-            //$('#countdownWrap').html('<table align="center" style="margin-top:90px;"><tr><td><div style="line-height: 30px;"><img src="/static/images/chatload.gif"/></div></td></tr><tr><td style="font-size: 16px; line-height: 25px;">Please wait a moment.</td></tr></table>');
+            clearInterval(_countdownInterval);
         }
         function loading_false() {
             $('#chatRoom').hide();
@@ -311,7 +286,6 @@
             $('#partnerWrap').addClass('active');
             $('#partnerWrap').show();
             $('#partnerLoading').hide();
-            $("#videos-second-container video").show();
             //$('#countDown').hide();
         }
 
@@ -397,16 +371,14 @@
                                  style="font-weight:bold;position: absolute; top:-20px; right:10px;">1 user online
                             </div>
                             <div id="videos-second-container" class="my_camera">
-
                             </div>
                             <div id="videos-container" class="my_camera">
-
                             </div>
                             <div class="my_camera"
                                  style="border-radius:7px;position:absolute;left:10px;bottom:10px;">
                                 <div class="d-flex align-items-center justify-content-center">
 												<span class="videoCounterWrap">
-													<span class="span_counter_label">59</span>
+													<span class="span_counter_label">60</span>
 												</span>
                                 </div>
                             </div>

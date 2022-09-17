@@ -272,18 +272,17 @@ httpApp = httpApp.listen(process.env.PORT || PORT, process.env.IP || "0.0.0.0", 
 
 // --------------------------
 // socket.io codes goes below
+let onlineUsers = [];
+let usersData = {};
 let io = ioServer(httpApp, {
     cors: {
         origin: "*",
-        // methods: ["GET", "POST"],
-        // transports: ['websocket', 'polling'],
-        // credentials: true
+        methods: ["GET", "POST"],
+        transports: ['websocket', 'polling'],
+        credentials: true
     },
-    // allowEIO3: true
+    allowEIO3: true
 });
-let onlineUsers = [];
-let usersData = {};
-let waitingUsers = [];
 io.on('connection', function(socket) {
     RTCMultiConnectionServer.addSocket(socket, config);
     
@@ -297,62 +296,32 @@ io.on('connection', function(socket) {
         socket.broadcast.emit(params.socketCustomEvent, message);
     });
 
-    // a user connect event start ------
     console.log(socket.userid, ' connects.');
-    onlineUsers.push(socket.userid); // push the online users list
-    waitingUsers.push(socket.userid); // push the waitting users list
-    usersData[socket.userid] = params.extra; // users details
-    io.emit('users_state', { // broadcast to all of users
+    onlineUsers.push(socket.userid);
+    usersData[socket.userid] = params.extra;
+    io.emit('users_state', { 
         currUsers: onlineUsers,
         state: 'connect',
         userid: socket.userid,
         udata: usersData
     });
-    // a user connect event end ------
 
-    // select a partner
-    socket.on('select_partner', ({ myId, ignoreList })=>{
-        let filteredUsers = waitingUsers.filter(function(value){ 
-            if(ignoreList.indexOf(value) == -1) return true;
-        });
-        filteredUsers.splice(filteredUsers.indexOf(myId), 1); // delete myid in filteredUsers
-
-        if(waitingUsers.length > 1 && filteredUsers.length > 0) {
-            const myWInd = waitingUsers.indexOf(myId);
-            waitingUsers.splice(myWInd, 1);
-            const partner = filteredUsers[0];
-            const pWInd = waitingUsers.indexOf(partner);
-            waitingUsers.splice(pWInd, 1);
-
-            socket.emit('selected_partner', {
-                myId, partnerId: partner
-            });
-        }
+    socket.on("chat_request", function(data){
+        socket.join(data.channel);
+        // console.log('chat request', data.channel);
+        socket.broadcast.emit("chat_request", data);
     });
+    socket.on("chat_accept_result", function(data){
+        // console.log('chat accept result', data.channel);
+        socket.join(data.channel);
+        socket.broadcast.to(data.channel).emit("chat_accept_result", data);
+    })
 
-    // let's chat
-    socket.on('let_us_chat', (data)=>{
-        socket.broadcast.emit("chat_accept", {
-            channelId: data.channelId,
-            myId: data.toId,
-            partnerId: data.fromId
-        });
-    });
-
-    // add user to waiting list
-    socket.on('add_me_waitingusers', ({ myId })=>{
-        console.log('add_me_waitingusers', myId);
-        if (waitingUsers.indexOf(myId) == -1) waitingUsers.push(myId);
-    });
-
-    // a user disconnect event start --------
-    socket.on("disconnect", () => {    
-        const oInd = onlineUsers.indexOf(socket.userid);
-        onlineUsers.splice(oInd, 1); // delete in users list
-        const wInd = waitingUsers.indexOf(socket.userid);
-        waitingUsers.splice(wInd, 1); // delete in waitting users list
-        delete usersData[socket.userid]; // delete data in users data
-        io.emit('users_state', {  // broadcast to all of users
+    socket.on("disconnect", function(){    
+        const ind = onlineUsers.indexOf(socket.userid);
+        onlineUsers.splice(ind, 1);
+        delete usersData[socket.userid];
+        io.emit('users_state', { 
             currUsers: onlineUsers,
             state: 'disconnect',
             userid: socket.userid,
@@ -360,6 +329,5 @@ io.on('connection', function(socket) {
         });
         console.log(socket.userid, ' Disconnect.');
     });
-    // a user disconnect event end --------
 
 });

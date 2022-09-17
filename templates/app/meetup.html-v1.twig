@@ -8,14 +8,18 @@
     <script type="text/javascript">
         let ssUrl = "http://localhost";
 
-        let io, connection, myId, partnerId, currChannelId;
-        let onlineUsers = [];
+        let io, connection, socket, _room, _my_id, partnerId, currChannelId;
         let usersData = {};
         let partnerData = {};
+        let channelList = [];
+        let filteredChannels = [];
         let ignoreList = [];
+        let waitFlag = false;
+        let nowChatting = false;
         let _researchInterval = null;
         let _countdownInterval = null;
         let latedConTime = 0;
+        let isContinue = 0;
 
         require(['jquery', 'js/app/socket.io'],
             function ($) {
@@ -32,8 +36,8 @@
                 connection = new RTCMultiConnection();
                 connection.socketURL = ssUrl + ':8443/';
 
-                const _room = '{{ hash }}';
-                myId = create_UUID();
+                _room = '{{ hash }}';
+                _my_id = create_UUID();
 
                 initialConnect();
                 connection.openOrJoin(_room);
@@ -57,113 +61,13 @@
             });
             return uuid;
         }
-        
-        {# getting a channel name from user ids #}
-        function getChannelId(uid1, uid2){
-            var tmpAry = [uid1, uid2].sort();
-            var channelId = tmpAry[0]+ tmpAry[1];
-            return channelId;
-        }
 
-        {# select random partner #}
-        function selectPartner(myId) {
-            console.log('select_partner', ignoreList);
-            connection.socket.emit('select_partner', { myId, ignoreList });
-        }
-
-        {# open or join in room #}
-        function openOrJoinRoom(roomId, myId, pId, flag){
-            connection.openOrJoin(roomId, function(isRoomCreated, roomid, error) {
-                // if(isRoomCreated && connection.isInitiator === true)
-                if (flag == "doOpen") { // you opened the room
-                    console.log("you opened a room");
-                    connection.socket.emit('let_us_chat', {
-                        fromId: myId,
-                        toId: pId,
-                        channelId: roomId
-                    });
-                } else {
-                    console.log('you joined it');
-                }
-            });
-        }
-
-        {# display data of selected partner #}
-        function displayPartnerData(pId){
-            partnerData = usersData[pId];
-            if(partnerData){
-                $("#partner_name").html(partnerData.username);
-                $("#partner_gender").html(partnerData.usergender);
-                const imgname = (partnerData.usergender).toLowerCase() + "_" + (Math.floor(Math.random() * 5 +1))
-                $('#partner_avatar').html('<img src="{{asset('static')}}/facetime/'+imgname+'.png" width="100%" height="100%" />');
-            }
-        }
-
-        {# research other partner #}
-        function researchPartner(){
-            _researchInterval = setInterval(function(){
-                if(onlineUsers.length > 2){
-                    let possibleUsers = onlineUsers.filter(function(value){ 
-                        if(ignoreList.indexOf(value) == -1) return true;
-                    });
-                    const myIndexOfPossibleUsers = possibleUsers.indexOf(myId);
-                    possibleUsers.splice(myIndexOfPossibleUsers, 1);
-                    console.log('possibleUsers', possibleUsers);
-                    if(possibleUsers.length > 0) {
-                        selectPartner(myId);
-                    }
-                } else if(onlineUsers.length == 2) {
-                    const elapsed = Math.floor((Date.now() - latedConTime) / 1000);
-                    console.log('onlineusers is two', elapsed);
-                    if(latedConTime > 0 && elapsed >= 5) {
-                        ignoreList = [];
-                        selectPartner(myId);
-                    }
-                }
-            },3000);
-        }
-
-        {# just start count down #}
-        function startCountdown() {
-            let counter = 10;
-            loadingEnd();
-            clearInterval(_researchInterval);
-            _countdownInterval = setInterval(function () {
-                console.log(counter);
-                $('.span_counter_label').html(counter);
-                if (counter <= 5) {
-                    $('.videoCounterWrap').addClass('videoCounterWrapActive');
-                }
-                if (counter <= 0) {
-                    // clear all of interval
-                    const interval_id = window.setInterval(function(){}, Number.MAX_SAFE_INTEGER);
-                    for (let i = 1; i < interval_id; i++) {
-                      window.clearInterval(i);
-                    }
-                    // --------
-                    counter = 0;
-                    connection.close();
-                }
-                counter--
-            }, 1000);
-        }
-
-        {# the action after stream ended #}
-        function afterStreamEnded() {
-            latedConTime = Date.now();
-            if (ignoreList.indexOf(partnerId) == -1) ignoreList.push(partnerId);
-            loadingStart();
-            researchPartner();
-            connection.socket.emit('add_me_waitingusers', { myId });
-        }
-
-        {# initial connect #}
         function initialConnect(){
             connection.enableFileSharing = false; // by default, it is "false".
 
             connection.autoCloseEntireSession = true;
 
-            connection.userid = myId;
+            connection.userid = _my_id;
             connection.session = {
                 audio: true,
                 video: true,
@@ -188,7 +92,7 @@
                 }
 
                 if (event.type == 'remote') {
-                    startCountdown();
+                    start_countdown();
                     document.getElementById('videos-second-container').innerHTML = "";
                     event.mediaElement.removeAttribute('controls');
                     document.getElementById('videos-second-container').appendChild(event.mediaElement);
@@ -196,54 +100,192 @@
             };
             connection.onstreamended = function (event) {
                 console.log('onstreamended');
-                afterStreamEnded();
+                page_loading();
+                manageCannel(currChannelId);
+                researchPartner();
             }
         }
-        
-        {# getting socket events #}
+
+        function createChat(data, is_c, isOpen) {
+            if (nowChatting) return;
+            connection.openOrJoin(data.channel, function(isRoomCreated, roomid, error) {
+                if (isRoomCreated && connection.isInitiator === true && data.res == "OK") { // you opened the room
+                    console.log("chat request is okay and opened a room");
+                    setTimeout(function(){
+                        connection.socket.emit("chat_accept_result",{ ...data, res: "OK" });
+                    },1000);
+                } else {
+                    console.log('you joined it');
+                }
+            });
+        }
+
+        function startVideoChat(data, isCon, isO){
+            currChannelId = data.channel;
+            partnerId = currChannelId.replace(_my_id, '');
+            partnerData = usersData[partnerId];
+            if(partnerData){
+                $("#partner_name").html(partnerData.username);
+                $("#partner_gender").html(partnerData.usergender);
+                const imgname = (partnerData.usergender).toLowerCase() + "_" + (Math.floor(Math.random() * 5 +1))
+                $('#partner_avatar').html('<img src="{{asset('static')}}/facetime/'+imgname+'.png" width="100%" height="100%" />');
+            }
+            createChat(data, isCon, isO);
+        }
+
         function socketActions() {
             connection.socket.on('users_state',function(data){
                 if(data.currUsers.length < 2) return;
 
                 $('.videoPeople').text(data.currUsers.length + " users online");
+                channelList = [];
+                for(let i = 0; i < data.currUsers.length; i++){
+                    sel_user = data.currUsers[i];
+                    if(_my_id != sel_user) {
+                        var tmpAry = [sel_user, _my_id].sort();
+                        var channelId = tmpAry[0]+ tmpAry[1];
+                        if(channelList.indexOf(channelId) == -1){
+                            channelList.push(channelId);
+                        }
+                    }
+                }
                 usersData = data.udata;
-                onlineUsers = data.currUsers;
 
-                if(data.state == 'connect' && data.userid == myId){
-                    loadingStart();
-                    selectPartner(myId);
+                if(data.state == 'connect' && data.userid == _my_id){
+                    page_loading();
+                    chatRandRequest();
                 }
             });
 
-            // my side
-            connection.socket.on('selected_partner', function(data){
-                if(data.myId == myId) {
-                    console.log('selected_partner', data.partnerId);
-
-                    partnerId = data.partnerId;
-                    displayPartnerData(partnerId);
-                    currChannelId = getChannelId(myId, partnerId);
-                    openOrJoinRoom(currChannelId, myId, partnerId, 'doOpen');
+            connection.socket.on('chat_request', function(data){
+                if(data.partnerId == _my_id && !nowChatting && !waitFlag){
+                    waitFlag = true; // partner
+                    data.channel != currChannelId ? isContinue = 0 : 1;
+                    startVideoChat({ ...data, res: "OK" }, isContinue, 'open');
+                } else if (data.partnerId == _my_id && !nowChatting && waitFlag) {
+                    // I am waitting...
+                    if(data.accept_result == "oops_IamChatting"){
+                        waitFlag = false;
+                    } else {
+                        connection.socket.emit("chat_accept_result",{ ...data, res: "nope_IamWatting" });
+                    }
+                } else if(data.partnerId == _my_id && nowChatting){
+                    // i am chatting...
+                    connection.socket.emit("chat_accept_result",{ ...data, res: "nope_IamChatting" });
                 }
             });
 
-            // partner side
-            connection.socket.on('chat_accept', function(data){
-                if(data.myId == myId){
-                    console.log('chat_accept', data);
-
-                    partnerId = data.partnerId;
-                    displayPartnerData(partnerId);
-                    currChannelId = data.channelId;
-                    openOrJoinRoom(data.channelId, data.myId, data.partnerId, 'doJoin');
+            connection.socket.on('chat_accept_result', function(data){
+                if(data.myId == _my_id){
+                    console.log("accept_result", data.res, 'nowChatting', nowChatting, 'waitFlag', waitFlag);
+                    if(data.res == "OK" && !nowChatting){
+                        data.channel != currChannelId ? isContinue = 0 : 1;
+                        startVideoChat(data, isContinue, 'join');
+                    } else if((data.res == "nope_IamChatting" || data.res == "nope_IamWatting") && !nowChatting) {
+                        // find other
+                        waitFlag = false;
+                    } else if( nowChatting ) {
+                        // if I am chatting, release the partner's waitting.
+                        connection.socket.emit("chat_request", { ...data, accept_result: "oops_IamChatting" })
+                    }
                 }
             });
 
             researchPartner();
         }
+        
+        function researchPartner(){
+            _researchInterval = setInterval(function(){
+                clearInterval(_countdownInterval);
+                if(channelList.length > 1 && !nowChatting) chatRandRequest();
+                if(channelList.length == 1 && !nowChatting){
+                    const elapsed = Math.floor((Date.now() - latedConTime) / 1000);
+                    if(!latedConTime || elapsed >= 57) chatRandRequest();
+                }
+            },3000);
+        }
 
-        function loadingStart() {
-            clearInterval(_countdownInterval);
+        function start_countdown() {
+            let counter = 10;
+            nowChatting = true;
+            waitFlag = true;
+            loading_false();
+            clearInterval(_researchInterval);
+            _countdownInterval = setInterval(function () {
+                console.log(counter);
+                $('.span_counter_label').html(counter);
+                if (counter <= 5) {
+                    $('.videoCounterWrap').addClass('videoCounterWrapActive');
+                }
+                if (counter <= 0) {
+                    // Get a reference to the last interval + 1
+                    const interval_id = window.setInterval(function(){}, Number.MAX_SAFE_INTEGER);
+                    // Clear any timeout/interval up to that id
+                    for (let i = 1; i < interval_id; i++) {
+                      window.clearInterval(i);
+                    }
+                    counter = 0;
+                    connection.close();
+                    latedConTime = Date.now();
+                }
+                counter--
+            }, 1000);
+        }
+
+        function sendChatRequest(myId,partnerId,channel) {
+            if(currChannelId != channel && filteredChannels.length > 1) {
+                waitFlag = true; // my
+                connection.socket.emit("chat_request", { myId,partnerId,channel });
+            } else {
+                setTimeout(function(){
+                    connection.socket.emit("chat_request", { myId,partnerId,channel });
+                },(Math.random()*1 + 0.5) * 1000)
+            }
+        }
+
+        function chatRandRequest() {
+            if(nowChatting || waitFlag) return; 
+            if(channelList.length < 1) return;
+            
+            filteredChannels = channelList.filter(function(value){ 
+                if(ignoreList.indexOf(value) == -1) return true;
+            });
+
+            console.log('filtered channel',filteredChannels);
+            if(filteredChannels.length == 0){
+                page_loading(); return;
+            }
+            const random = Math.floor(Math.random() * filteredChannels.length);
+            var randCid = filteredChannels[random];
+            
+            // console.log(randCid, "selected random channel id");
+            if(ignoreList.indexOf(randCid) > -1) return;
+            // partner id
+            const randPid = randCid.replace(_my_id, '');
+            // send chat request
+            sendChatRequest(_my_id,randPid,randCid);
+        }
+        
+        function manageCannel(channelId){
+            if(nowChatting) return;
+            if(channelList.length > 1) {
+                console.log("added ignore list", channelId);
+                // add channel id into ignore list
+                if (ignoreList.indexOf(channelId) == -1) ignoreList.push(channelId);
+
+                chatRandRequest();
+            } else if(channelList.length == 1) {
+                page_loading();
+                console.log("will connect after 60 secs.");
+                setTimeout(function(){
+                    chatRandRequest();
+                },60000);
+            } else page_loading();
+        }
+
+        function page_loading() {
+            nowChatting = false;
+            waitFlag = false;
             $('.span_counter_label').html('60');
             $("#videos-second-container").html("");
             $('.videoCounterWrap').removeClass('videoCounterWrapActive');
@@ -251,13 +293,15 @@
             $('#titlePage').text('Waiting for the next meeting.');
             $('#partnerLoading').show();
             $('#partnerWrap').hide();
+            clearInterval(_countdownInterval);
         }
-        function loadingEnd() {
+        function loading_false() {
             $('#chatRoom').hide();
             $('#titlePage').html('Greetings!');
             $('#partnerWrap').addClass('active');
             $('#partnerWrap').show();
             $('#partnerLoading').hide();
+            //$('#countDown').hide();
         }
 
         function calculateVideoSize() {

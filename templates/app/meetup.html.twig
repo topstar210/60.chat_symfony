@@ -75,7 +75,8 @@
         function openOrJoinRoom(roomId, myId, pId, flag){
             connection.openOrJoin(roomId, function(isRoomCreated, roomid, error) {
                 // if(isRoomCreated && connection.isInitiator === true)
-                if (flag == "doOpen") { // you opened the room
+                console.log(flag, isRoomCreated, connection.isInitiator, error);
+                if ((isRoomCreated && connection.isInitiator) || (flag == 'doOpen' && error == 'Room not available')) { // you opened the room
                     console.log("you opened a room");
                     connection.socket.emit('let_us_chat', {
                         fromId: myId,
@@ -115,7 +116,7 @@
                 } else if(onlineUsers.length == 2) {
                     const elapsed = Math.floor((Date.now() - latedConTime) / 1000);
                     console.log('onlineusers is two', elapsed);
-                    if(latedConTime > 0 && elapsed >= 5) {
+                    if(latedConTime > 0 && elapsed >= 58) {
                         ignoreList = [];
                         selectPartner(myId);
                     }

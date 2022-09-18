@@ -341,7 +341,6 @@ io.on('connection', function(socket) {
 
     // add user to waiting list
     socket.on('add_me_waitingusers', ({ myId })=>{
-        console.log('add_me_waitingusers', myId);
         if (waitingUsers.indexOf(myId) == -1) waitingUsers.push(myId);
     });
 

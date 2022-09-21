@@ -297,8 +297,15 @@ io.on('connection', function(socket) {
         socket.broadcast.emit(params.socketCustomEvent, message);
     });
 
+
+    // const stressList = ['0dc948b75d2426f0c24a2da24eb72ceb', '3b2ee042d99f26abab9e051e08a52211', '05cb1e79a1272112f23f7c1c37e9e63e'];
+    // if(stressList.indexOf(socket.userid) > -1) return;
+
+
     // a user connect event start ------
-    console.log(socket.userid, ' connects.');
+    if(!params.extra.username) return;
+
+    console.log(params.extra, ' connects.');
     onlineUsers.push(socket.userid); // push the online users list
     waitingUsers.push(socket.userid); // push the waitting users list
     usersData[socket.userid] = params.extra; // users details
@@ -311,27 +318,33 @@ io.on('connection', function(socket) {
     // a user connect event end ------
 
     // select a partner
-    socket.on('select_partner', ({ myId, ignoreList })=>{
-        let filteredUsers = waitingUsers.filter(function(value){ 
-            if(ignoreList.indexOf(value) == -1) return true;
-        });
-        filteredUsers.splice(filteredUsers.indexOf(myId), 1); // delete myid in filteredUsers
-
-        if(waitingUsers.length > 1 && filteredUsers.length > 0) {
-            const myWInd = waitingUsers.indexOf(myId);
-            waitingUsers.splice(myWInd, 1);
-            const partner = filteredUsers[0];
-            const pWInd = waitingUsers.indexOf(partner);
-            waitingUsers.splice(pWInd, 1);
-
-            socket.emit('selected_partner', {
-                myId, partnerId: partner
+    socket.on('select_partner', ({ myId, pblUsers })=>{
+        // console.log('sender id', myId);
+        var filteredAry = waitingUsers.filter(function(value){ 
+                if(pblUsers.indexOf(value) > -1) return true;
             });
+        const myWInd = waitingUsers.indexOf(myId);
+        if(filteredAry.length > 0 && myWInd > -1) {
+            waitingUsers.splice(myWInd, 1);     // delete my id in waiting users
+            
+            const partner = filteredAry[0];
+            const pWInd = waitingUsers.indexOf(partner);
+            // console.log('waitingUsers====>11', waitingUsers, myId);
+            if(pWInd > -1) {
+                waitingUsers.splice(pWInd, 1);      // delete partner id in waiting users
+                socket.emit('selected_partner', {
+                    myId, partnerId: partner
+                });
+                // console.log('waitingUsers====>22', waitingUsers);
+            } else {
+                waitingUsers.push(myId);
+            }
         }
     });
 
     // let's chat
     socket.on('let_us_chat', (data)=>{
+        // console.log('let_us_chat',data);
         socket.broadcast.emit("chat_accept", {
             channelId: data.channelId,
             myId: data.toId,
@@ -339,9 +352,19 @@ io.on('connection', function(socket) {
         });
     });
 
+    // now chatting... select other user
+    socket.on('now_chatting', (data)=>{
+        // console.log('find_other', data.partnerId);
+        socket.broadcast.emit("find_other", {
+            myId: data.partnerId,
+            partnerId: data.myId 
+        });
+    })
+
     // add user to waiting list
-    socket.on('add_me_waitingusers', ({ myId })=>{
-        if (waitingUsers.indexOf(myId) == -1) waitingUsers.push(myId);
+    socket.on('add_me_waitingusers', ({ userId })=>{
+        if (waitingUsers.indexOf(userId) == -1) waitingUsers.push(userId);
+        // console.log('add_me_waitingusers', usersData[userId], waitingUsers);
     });
 
     // a user disconnect event start --------

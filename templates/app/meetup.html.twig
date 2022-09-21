@@ -16,6 +16,7 @@
         let _researchInterval = null;
         let _countdownInterval = null;
         let latedConTime = 0;
+        let acceptFlag = false;
 
         require(['jquery', 'js/app/socket.io'],
             function ($) {
@@ -28,15 +29,13 @@
             $('#countdownWrap').addClass('countdownWrapActive');
             $('#countdownWrap').html('<table align="center" style="margin-top:90px;"><tr><td><div style="line-height: 30px;"><img src="/static/images/chatload.gif"/></div></td></tr><tr><td style="font-size: 16px; line-height: 25px;">Please wait a moment.</td></tr></table>');
             
+            myId = '{{ hash }}';
             setTimeout(function() {
                 connection = new RTCMultiConnection();
                 connection.socketURL = ssUrl + ':8443/';
 
-                const _room = '{{ hash }}';
-                myId = create_UUID();
-
                 initialConnect();
-                connection.openOrJoin(_room);
+                connection.openOrJoin(myId);
                 socketActions();
 
                 $('#countDown').hide();
@@ -66,9 +65,10 @@
         }
 
         {# select random partner #}
-        function selectPartner(myId) {
-            console.log('select_partner', ignoreList);
-            connection.socket.emit('select_partner', { myId, ignoreList });
+        function selectPartner(myId, pblUsers) {
+            console.log('possible users', pblUsers);
+            if(pblUsers.length == 0) return;
+            connection.socket.emit('select_partner', { myId, pblUsers });
         }
 
         {# open or join in room #}
@@ -77,7 +77,8 @@
                 // if(isRoomCreated && connection.isInitiator === true)
                 console.log(flag, isRoomCreated, connection.isInitiator, error);
                 if ((isRoomCreated && connection.isInitiator) || (flag == 'doOpen' && error == 'Room not available')) { // you opened the room
-                    console.log("you opened a room");
+                // if (flag == 'doOpen') { // you opened the room
+                    console.log("you opened a room", myId);
                     connection.socket.emit('let_us_chat', {
                         fromId: myId,
                         toId: pId,
@@ -104,31 +105,36 @@
         function researchPartner(){
             _researchInterval = setInterval(function(){
                 if(onlineUsers.length > 2){
-                    let possibleUsers = onlineUsers.filter(function(value){ 
-                        if(ignoreList.indexOf(value) == -1) return true;
-                    });
-                    const myIndexOfPossibleUsers = possibleUsers.indexOf(myId);
-                    possibleUsers.splice(myIndexOfPossibleUsers, 1);
-                    console.log('possibleUsers', possibleUsers);
-                    if(possibleUsers.length > 0) {
-                        selectPartner(myId);
+                    let pblUsers = possibleUsers(myId, onlineUsers, ignoreList);
+                    if(pblUsers.length > 0) {
+                        selectPartner(myId, pblUsers);
                     }
                 } else if(onlineUsers.length == 2) {
                     const elapsed = Math.floor((Date.now() - latedConTime) / 1000);
-                    console.log('onlineusers is two', elapsed);
+                    // console.log('onlineusers is two', elapsed);
                     if(latedConTime > 0 && elapsed >= 58) {
                         ignoreList = [];
-                        selectPartner(myId);
+                        let pblUsers = possibleUsers(myId, onlineUsers, ignoreList);
+                        selectPartner(myId, pblUsers);
                     }
                 }
             },3000);
         }
 
+        // clear all of interval
+        function clearAllInterval(){
+            const interval_id = window.setInterval(function(){}, Number.MAX_SAFE_INTEGER);
+            for (let i = 1; i < interval_id; i++) {
+                window.clearInterval(i);
+            }
+        }
+
         {# just start count down #}
         function startCountdown() {
-            let counter = 10;
+            let counter = 60;
             loadingEnd();
-            clearInterval(_researchInterval);
+            clearAllInterval();
+            displayPartnerData(partnerId);
             _countdownInterval = setInterval(function () {
                 console.log(counter);
                 $('.span_counter_label').html(counter);
@@ -136,12 +142,7 @@
                     $('.videoCounterWrap').addClass('videoCounterWrapActive');
                 }
                 if (counter <= 0) {
-                    // clear all of interval
-                    const interval_id = window.setInterval(function(){}, Number.MAX_SAFE_INTEGER);
-                    for (let i = 1; i < interval_id; i++) {
-                      window.clearInterval(i);
-                    }
-                    // --------
+                    clearAllInterval();
                     counter = 0;
                     connection.close();
                 }
@@ -151,11 +152,27 @@
 
         {# the action after stream ended #}
         function afterStreamEnded() {
+            acceptFlag = false;
             latedConTime = Date.now();
+
             if (ignoreList.indexOf(partnerId) == -1) ignoreList.push(partnerId);
+            
             loadingStart();
             researchPartner();
-            connection.socket.emit('add_me_waitingusers', { myId });
+
+            connection.socket.emit('add_me_waitingusers', { userId: myId });
+            // connection.socket.emit('add_me_waitingusers', { userId: partnerId });
+            console.log('onstreamended');
+        }
+
+        {# possible users with me #}
+        function possibleUsers(myId, onlineUsers, ignoreList){
+            let pblUsers = onlineUsers.filter(function(value){ 
+                if(ignoreList.indexOf(value) == -1) return true;
+            });
+            const mId = pblUsers.indexOf(myId);
+            pblUsers.splice(mId, 1);
+            return pblUsers;
         }
 
         {# initial connect #}
@@ -196,7 +213,6 @@
                 }
             };
             connection.onstreamended = function (event) {
-                console.log('onstreamended');
                 afterStreamEnded();
             }
         }
@@ -212,31 +228,44 @@
 
                 if(data.state == 'connect' && data.userid == myId){
                     loadingStart();
-                    selectPartner(myId);
+                    let pblUsers = possibleUsers(myId, onlineUsers, ignoreList);
+                    selectPartner(myId, pblUsers);
                 }
             });
 
             // my side
             connection.socket.on('selected_partner', function(data){
                 if(data.myId == myId) {
-                    console.log('selected_partner', data.partnerId);
+                    console.log('selected_partner', usersData[data.partnerId]);
 
+                    clearAllInterval();
                     partnerId = data.partnerId;
-                    displayPartnerData(partnerId);
                     currChannelId = getChannelId(myId, partnerId);
                     openOrJoinRoom(currChannelId, myId, partnerId, 'doOpen');
                 }
             });
+            connection.socket.on('find_other', function(data){
+                if(data.myId == myId) {
+                    partnerId = null;
+                    currChannelId = null;
+
+                    console.log("already chatting. find other", data.partnerId);
+                    connection.socket.emit('add_me_waitingusers', { userId: data.myId });
+                    researchPartner();
+                }
+            })
 
             // partner side
             connection.socket.on('chat_accept', function(data){
-                if(data.myId == myId){
+                if(data.myId == myId && !acceptFlag){
+                    acceptFlag = true;
                     console.log('chat_accept', data);
 
                     partnerId = data.partnerId;
-                    displayPartnerData(partnerId);
                     currChannelId = data.channelId;
                     openOrJoinRoom(data.channelId, data.myId, data.partnerId, 'doJoin');
+                } else if (data.myId == myId && acceptFlag) {
+                    connection.socket.emit('now_chatting', data);
                 }
             });
 
